@@ -42,13 +42,11 @@
 
 #### 基本功能
 
-`to do`
-
 - [x] ~~模拟登录~~
 
   使用selenium抓取已登录的cookies
 
-- [ ] cookies
+- [x] cookies
 
 - [ ] 爬取pixiv第一张图片
 
@@ -73,6 +71,8 @@
 - [ ] proxy池
 
 #### 主要模块
+
+`sample.json`: daily ranking sample
 
 `main.py`
 
