@@ -1,5 +1,6 @@
 import datetime
 import json
+import sys
 
 # note that the name and password are required in 'userdata.json'
 # it should be something like
@@ -16,6 +17,7 @@ try:
         PASSWORD = user['password']
 except FileNotFoundError:
     print("do not find userdata.json")
+    sys.exit(0)
 else:
     print("load userdata.json successfully!")
 

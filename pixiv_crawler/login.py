@@ -6,7 +6,7 @@ import sys
 import time
 import re
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, InvalidArgumentException
 
 
 # use selenium to fetch local cookies
@@ -21,10 +21,13 @@ class Login():
         print("it should take at most 30 sec to fetch cookies")
         print("----ignore output below----")
         options = webdriver.ChromeOptions()
-        # options.add_argument("--headless")
-        # options.add_argument('--no-sandbox')
         options.add_argument("user-data-dir=" + USER_DATA_DIR)
-        browser = webdriver.Chrome(options=options)
+        try:
+            browser = webdriver.Chrome(options=options)
+        except InvalidArgumentException:
+            print("\n----ignore output above----")
+            print("you need to close all chrome apps")
+            sys.exit(0)
         # timeout=30s
         browser.set_page_load_timeout(30)
         try:
