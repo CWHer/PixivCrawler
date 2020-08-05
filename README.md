@@ -52,7 +52,7 @@
 
 - [ ] proxy池
 
-- [ ] 多图 image_group
+- [x] 多图 image_group
 
 - [ ] 热榜
 
@@ -74,11 +74,29 @@
 
 #### 主要模块
 
-`sample.json`: daily ranking sample
+- json sample
+
+> `rank.json`:  rank 
+>
+> ​	request ".../ranking.php?p=1&format=json"
+>
+> ​	
+>
+> `page.json`: used in image_group.py
+>
+> ​	from ".../artworks/xxxx"
+>
+> ​	request "..../ajax/illust/xxxx"
+
+`settings.json`: 所有设置都在这里，见**部署方法**
+
+`login.py`: 使用selenium抓取已登录的cookies并保存在cookies.json
+
+`image.py`: 图片类，提供下载方法
+
+`image_group.py`: 从".../artworks/xxxx"网页收集所有图片
 
 `main.py`
-
-`login.py`：使用selenium抓取已登录的cookies并保存在cookies.json
 
 `ranking_crawler.py`
 
@@ -86,4 +104,3 @@
 
 `downloader.py`
 
-`settings.json`
