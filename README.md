@@ -48,7 +48,11 @@
 
 - [x] cookies
 
-- [ ] 爬取pixiv第一张图片
+- [x] 爬取pixiv第一张图片
+
+- [ ] proxy池
+
+- [ ] 多图 image_group
 
 - [ ] 热榜
 
@@ -67,8 +71,6 @@
 - [ ] 数据库构建
 
 - [ ] cookies池
-
-- [ ] proxy池
 
 #### 主要模块
 
