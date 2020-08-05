@@ -146,8 +146,6 @@ Windows限定，~~不保证在其它平台可以使用~~
 >
 > ​	request ".../ranking.php?p=1&format=json"
 >
-> ​	
->
 > `page.json`: used in image_group.py
 >
 > ​	from ".../artworks/xxxx"
@@ -164,7 +162,7 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - `image.py`: 
 
-​	传入类似"https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg"的url
+​	传入类似"xxxx://i.pximg.net/img-original/img/xxxxx/xxxxxx_p0.jpg"的url
 
 ​	图片类，提供下载方法，可以多线程执行
 
