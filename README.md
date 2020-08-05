@@ -6,11 +6,13 @@
 
 [TOC]
 
-#### 部署方法
+### 部署方法
 
-Windows限定，~~不保证在其它OS可以使用~~
+Windows限定，~~不保证在其它平台可以使用~~
 
-##### 1.安装依赖库
+#### 1.安装依赖库
+
+总之少哪个装哪个
 
 - request
 
@@ -26,23 +28,83 @@ Windows限定，~~不保证在其它OS可以使用~~
 
   在windows环境建议直接把chromedriver.exe放入python的scripts目录
 
-##### 2.运行
+#### 2.运行
 
-##### 3.注意事项:warning::warning::warning:
+0. `settings.py`的设置
 
-- 确保chrome已经登录pixiv.net
+   > 这里没提到的都不用改
+   >
+   > `USER_ID`:warning:: 这里改成自己的uid，在profile页面的url里可以找到
+   >
+   > `name/password`:warning::
+   >
+   > ​	在同目录下新建一个userdata.json，填入以下内容
+   >
+   > ​	其实这块目前好像用不上，~~但是先留着看看...~~
+   >
+   > ​	运行时载入成功会有'load userdata.json successfully!'反馈
+   >
+   > ```json
+   > {
+   >     "name":"xxxx",
+   >     "password":""
+   > }
+   > ```
+   >
+   > `FAIL_TIMES`: 失败后尝试请求次数
+   >
+   > `DOWNLOAD_DELAY`: 下载延迟
+   >
+   > `IMAGES_STORE_PATH`: 图片保存目录，相对路径
+   >
+   > `START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
+   >
+   > `PIXIV_MODE`:warning:: 设置排行榜类型
+   >
+   > `ARTWORKS_PER`:warning:: 榜的前x幅作品
+   >
+   > `PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
+   >
+   > `USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login是调整chrome设置
+   >
+   > ​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
 
-  login模块使用selenium模拟chrome抓取cookies
+1. 获取cookies
 
-- 在运行login模块时需要关闭所有chrome窗口
+   使用`login.py`，运行Login().login()
 
-- 需要手动检查cookies.json是否为空
+   ```python
+   from login import Login
+   Login().login()
+   ```
 
-  selenium模块处理状态码比较困难
+   运行一次即可，保存在cookie.json
 
-  没有很好的办法判断网页是请求成功，还是无法访问，而且这里不会报错
+   务必先阅读注意事项1-4
 
-#### 基本功能
+2. 排行榜的抓取
+
+   见当前的`main.py`，需要提前配置好`settings.py`
+
+#### 3.注意事项:warning::warning::warning:
+
+1. 确保chrome已经登录pixiv.net
+
+   login模块使用selenium模拟chrome抓取cookies，会有弹窗
+
+2. 在运行login模块时需要关闭所有chrome窗口
+
+3. 需要手动检查cookies.json是否为空
+
+   selenium模块处理状态码比较困难
+
+   没有很好的办法判断网页是请求成功，还是无法访问，而且这里不会报错
+
+4. cookies的过期时间很长
+
+   基本上几天内用同一个cookie不会有大问题，等过期了再次抓取即可
+
+### 基本功能
 
 - [x] ~~模拟登录~~
 
@@ -56,7 +118,7 @@ Windows限定，~~不保证在其它OS可以使用~~
 
 - [x] 多图 image_group
 
-- [ ] 热榜
+- [x] 排行榜 ranking_crawler
 
 - [ ] 个人收藏
 
@@ -70,17 +132,17 @@ Windows限定，~~不保证在其它OS可以使用~~
 
   image.py 现在使用了threading，现在每个page并发image.download
 
-- [ ] 流量控制
+- [x] 流量控制
 
 - [ ] 数据库构建
 
 - [ ] cookies池
 
-#### 主要模块
+### 主要模块
 
 - json sample
 
-> `rank.json`:  rank 
+> `rank.json`:  ranking
 >
 > ​	request ".../ranking.php?p=1&format=json"
 >
@@ -92,19 +154,35 @@ Windows限定，~~不保证在其它OS可以使用~~
 >
 > ​	request "..../ajax/illust/xxxx"
 
-`settings.json`: 所有设置都在这里，见**部署方法**
+- `settings.json`: 所有设置都在这里，见**部署方法**
 
-`login.py`: 使用selenium抓取已登录的cookies并保存在cookies.json
+- `login.py`:
 
-`image.py`: 图片类，提供下载方法，可以多线程执行
+​	无需传入参数 
 
-`image_group.py`: 从".../artworks/xxxx"网页收集所有图片
+​	使用selenium抓取已登录的cookies并保存在cookies.json
 
-`main.py`
+- `image.py`: 
 
-`ranking_crawler.py`
+​	传入类似"https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg"的url
 
-`bookmark_crawler.py`
+​	图片类，提供下载方法，可以多线程执行
 
-`downloader.py`
+- `image_group.py`: 
+
+​	传入illust_id和cookie，其中illust_id就是下面xxxx部分的数字
+
+​	从".../artworks/xxxx"网页收集所有图片
+
+- `main.py`
+
+- `ranking_crawler.py`
+
+​	需要传入cookie和capacity=1024
+
+​	其中capacity为流量限制，默认1024MB，只计算图片大小而忽略request的一些占用	
+
+​	爬取排行榜
+
+- `bookmark_crawler.py`
 

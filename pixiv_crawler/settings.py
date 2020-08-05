@@ -3,7 +3,7 @@ import json
 import sys
 
 # user id
-# access your pixiv user profile
+# access your pixiv user profile to find this
 # it should be something like https://www.pixiv.net/users/xxxx
 # change following string into your id
 USER_ID = '22821761'
@@ -22,32 +22,37 @@ try:
         PIXIV_ID = user['name']
         PASSWORD = user['password']
 except FileNotFoundError:
-    print("do not find userdata.json")
+    print("---do not find userdata.json---")
     sys.exit(0)
 else:
-    print("load userdata.json successfully!")
+    print("---load userdata.json successfully!---")
 
 # abort request/download after 5(default) unsuccessful attempts
-FAIL_TIMES = 5
+FAIL_TIMES = 10
 
 # wait seconds between each download
 # note that it should better be greater than 1 sec
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 2.5
 # image store path
 # only change name is OK, don't modify '\'
 IMAGES_STORE_PATH = 'images/'
 
 # start date
-START_DATE = datetime.date(2020, 8, 4)
+START_DATE = datetime.date(2020, 7, 15)
 # date domain
 # [start,start+domain-1]
-DOMAIN = 1
+DOMAIN = 2
 
 # crawl mode for ranking crawler
 PIXIV_MODES = [
     'daily', 'weekly', 'monthly', 'male', 'female', 'daily_r18', 'weekly_r18',
     'male_r18', 'female_r18'
 ]
+# [0,7]
+PIXIV_MODE = 0
+# download artworks per mode based request
+# suggest to be divisible by 50
+ARTWORKS_PER = 2
 
 # proxy setting
 # you should customize your proxy setting accordingly

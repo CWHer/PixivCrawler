@@ -4,16 +4,15 @@
 from settings import *
 from image import Image
 import requests
-from requests import exceptions
 import time
 import re
 
 
 class ImageGroup():
-    def __init__(self, url, cookie):
+    def __init__(self, illust_id, cookie):
+        self.id = illust_id
         # url sample: https://www.pixiv.net/artworks/83398062
-        self.ref = url
-        self.id = re.search("/(\d+)$", url).group(1)
+        self.ref = 'https://www.pixiv.net/artworks/' + self.id
         self.url = 'https://www.pixiv.net/ajax/illust/' + self.id + '/pages?lang=zh'
         self.cookie = cookie
         self.headers = {'Referer': self.ref, "x-user-id": USER_ID}
@@ -25,7 +24,7 @@ class ImageGroup():
     # request 'page' to collect all images' url
     # return a dict of url
     def collect(self):
-        print("start collect " + self.ref)
+        print("---start collect " + self.ref + '---')
 
         for i in range(FAIL_TIMES):
             try:
@@ -37,12 +36,11 @@ class ImageGroup():
                 if response.status_code == 200:
                     for url in response.json()['body']:
                         self.group.append(Image(url['urls']['original']))
-                    print("collect " + self.ref + " complete")
+                    print("---collect " + self.ref + " complete---")
                     time.sleep(DOWNLOAD_DELAY)
                     return
 
-            except (exceptions.ConnectTimeout, exceptions.ProxyError,
-                    exceptions.SSLError) as e:
+            except Exception as e:
                 print(e)
                 print("check your proxy setting")
                 print("maybe it was banned.")
@@ -50,7 +48,7 @@ class ImageGroup():
                 print("next attempt will start in 5 sec\n")
                 time.sleep(5)
 
-        print("fail to collect " + self.ref)
+        print("---fail to collect " + self.ref + '---')
 
     # download images in self.group
     # return size of image (MB)

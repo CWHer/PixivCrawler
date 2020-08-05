@@ -3,7 +3,6 @@
 #   like https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg
 from settings import *
 import requests
-from requests import exceptions
 import threading
 import re
 import time
@@ -25,13 +24,15 @@ class Image(threading.Thread):
     # download image
     # return size of image (MB)
     def run(self):
-        print("start download ", self.name)
-        time.sleep(0.4)
+        print("---start download " + self.name + '---')
+        time.sleep(1)
 
         if os.path.exists(IMAGES_STORE_PATH + self.name):
             print(self.name + ' already exists')
+            time.sleep(DOWNLOAD_DELAY)
             return
 
+        time.sleep(DOWNLOAD_DELAY)
         for i in range(FAIL_TIMES):
             try:
                 response = requests.get(self.url,
@@ -41,19 +42,18 @@ class Image(threading.Thread):
                 if response.status_code == 200:
                     with open(IMAGES_STORE_PATH + self.name, "wb") as f:
                         f.write(response.content)
-                    print("download " + self.name + " successfully")
+                    print("---download " + self.name + " successfully---")
                     time.sleep(DOWNLOAD_DELAY)
                     self.size = len(response.content) / 1024 / 1024
                     return
 
-            except (exceptions.ConnectTimeout, exceptions.ProxyError,
-                    exceptions.SSLError) as e:
+            except Exception as e:
                 print(e)
                 print("check your proxy setting")
                 print("maybe it was banned.")
                 print("This is " + str(i + 1) + " attempt to download " +
                       self.name)
                 print("next attempt will start in 5 sec\n")
-                time.sleep(4)
+                time.sleep(5)
 
-        print("fail to download " + self.name)
+        print("---fail to download " + self.name + '---')
