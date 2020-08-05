@@ -1,9 +1,11 @@
 # image class
+# download image from url
+#   like https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg
 from settings import *
 import requests
+from requests import exceptions
 import re
 import time
-from requests import exceptions
 import os
 
 
@@ -19,6 +21,8 @@ class Image():
 
     # return size of image (MB)
     def download(self):
+        print("start download ", self.name)
+
         if os.path.exists(IMAGES_STORE_PATH + self.name):
             print(self.name + 'already exists')
             return 0

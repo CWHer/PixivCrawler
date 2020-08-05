@@ -2,6 +2,12 @@ import datetime
 import json
 import sys
 
+# user id
+# access your pixiv user profile
+# it should be something like https://www.pixiv.net/users/xxxx
+# change following string into your id
+USER_ID = '22821761'
+
 # note that the name and password are required in 'userdata.json'
 # it should be something like
 # {
@@ -21,12 +27,15 @@ except FileNotFoundError:
 else:
     print("load userdata.json successfully!")
 
-# abort request after 5(default) unsuccessful attempts
-REQUEST_FAIL_TIMES = 5
+# abort request/download after 5(default) unsuccessful attempts
+FAIL_TIMES = 5
 
-DOWNLOAD_DELAY = 1
+# wait seconds between each download
+# note that it should better be greater than 1 sec
+DOWNLOAD_DELAY = 2
 # image store path
-IMAGES_STORE = 'images/'
+# only change name is OK, don't modify '\'
+IMAGES_STORE_PATH = 'images/'
 
 # start date
 START_DATE = datetime.date(2020, 8, 4)
@@ -41,6 +50,9 @@ PIXIV_MODES = [
 ]
 
 # proxy setting
+# you should customize your proxy setting accordingly
+# note that for ss/ssr no need to change
+#   if you use default ss/ssr settings
 PROXIES = {'https': '127.0.0.1:1080'}
 
 # browser header
@@ -54,7 +66,7 @@ BROWSER_HEADER = {
 # replace the following string with your own user name
 # it should be something like
 # C:\\Users\\xxxxx\\.....
-# note that you can remove
+# note that you can remove (it's now removed)
 #   'options.add_argument("--headless")' in login.py
 #   to check if chrome can implement correctly with this
 USER_DATA_DIR = 'C:\\Users\\cwher\\AppData\\Local\\Google\\Chrome\\User Data'
