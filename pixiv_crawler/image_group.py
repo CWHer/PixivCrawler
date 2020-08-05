@@ -57,5 +57,8 @@ class ImageGroup():
     def download(self):
         ret = 0
         for image in self.group:
-            ret += image.download()
+            image.start()
+        for image in self.group:
+            image.join()
+            ret += image.size
         return ret

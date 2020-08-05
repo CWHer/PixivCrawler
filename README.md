@@ -8,6 +8,8 @@
 
 #### 部署方法
 
+Windows限定，~~不保证在其它OS可以使用~~
+
 ##### 1.安装依赖库
 
 - request
@@ -64,7 +66,9 @@
 
 - [ ] 标签搜索
 
-- [ ] 多线程
+- [x] 多线程
+
+  image.py 现在使用了threading，现在每个page并发image.download
 
 - [ ] 流量控制
 
@@ -92,7 +96,7 @@
 
 `login.py`: 使用selenium抓取已登录的cookies并保存在cookies.json
 
-`image.py`: 图片类，提供下载方法
+`image.py`: 图片类，提供下载方法，可以多线程执行
 
 `image_group.py`: 从".../artworks/xxxx"网页收集所有图片
 
