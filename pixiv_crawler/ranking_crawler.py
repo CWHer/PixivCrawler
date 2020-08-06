@@ -1,3 +1,4 @@
+# download artworks from ranking
 from settings import *
 import datetime
 import time
@@ -24,18 +25,30 @@ class RankingCrawler():
     def __nextday(self):
         self.date += datetime.timedelta(days=1)
 
+    # download images in p
+    def __download(self, response):
+        for artwork in response.json()['contents']:
+            group = ImageGroup(str(artwork['illust_id']), self.cookie)
+            group.collect()
+            self.size += group.download()
+            self.download_cnt += 1
+            print("--download " + self.date.strftime("%Y-%m-%d") +
+                  ' artwork:' + str(self.download_cnt) + ' complete--')
+            if self.size >= self.capacity: return
+            if self.download_cnt == ARTWORKS_PER: return
+
     # download images
     def download(self):
+        print("---start collect " + self.date.strftime("%Y-%m-%d") + '---')
+        # note that 50 artworks per p
         num = (ARTWORKS_PER - 1) // 50 + 1  #ceil
         ref = self.url + '&date=' + self.date.strftime("%Y%m%d")
-        print("---start collect " + self.date.strftime("%Y-%m-%d") + '---')
-        download_cnt = 0
+        headers = self.headers
+        headers.update({'Referer': ref})
         for i in range(num):
             url = ref + '&p=' + str(i + 1) + '&format=json'
-
+            self.download_cnt = 0
             for j in range(FAIL_TIMES):
-                headers = self.headers
-                headers.update({'Referer': ref})
                 try:
                     response = requests.get(url,
                                             headers=headers,
@@ -43,17 +56,7 @@ class RankingCrawler():
                                             cookies=self.cookie,
                                             timeout=4)
                     if response.status_code == 200:
-                        for illust in response.json()['contents']:
-                            group = ImageGroup(str(illust['illust_id']),
-                                               self.cookie)
-                            group.collect()
-                            self.size += group.download()
-                            download_cnt += 1
-                            print("--collect " +
-                                  self.date.strftime("%Y-%m-%d") + ' illust:' +
-                                  str(download_cnt) + ' complete--')
-                            if self.size >= self.capacity: break
-                            if download_cnt == ARTWORKS_PER: break
+                        self.__download(response)
                         break
                 except Exception as e:
                     print(e)
@@ -63,13 +66,10 @@ class RankingCrawler():
                     print("next attempt will start in 5 sec\n")
                     time.sleep(5)
 
-                if self.size >= self.capacity: break
-                if download_cnt == ARTWORKS_PER: break
-
             if self.size >= self.capacity: break
-            if download_cnt == ARTWORKS_PER: break
+            if self.download_cnt == ARTWORKS_PER: break
 
-        print("---collect " + self.date.strftime("%Y-%m-%d") + ' complete---')
+        print("---download " + self.date.strftime("%Y-%m-%d") + ' complete---')
 
     def run(self):
         print("---start download " + self.mode + " ranking---")
