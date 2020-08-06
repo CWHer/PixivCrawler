@@ -38,7 +38,7 @@ class Image(threading.Thread):
                 response = requests.get(self.url,
                                         headers=self.headers,
                                         proxies=PROXIES,
-                                        timeout=4)
+                                        timeout=6)
                 if response.status_code == 200:
                     with open(IMAGES_STORE_PATH + self.name, "wb") as f:
                         f.write(response.content)
@@ -53,7 +53,8 @@ class Image(threading.Thread):
                 print("maybe it was banned.")
                 print("This is " + str(i + 1) + " attempt to download " +
                       self.name)
-                print("next attempt will start in 5 sec\n")
-                time.sleep(5)
+                print("next attempt will start in " + str(FAIL_DELAY) +
+                      " sec\n")
+                time.sleep(FAIL_DELAY)
 
         print("---fail to download " + self.name + '---')

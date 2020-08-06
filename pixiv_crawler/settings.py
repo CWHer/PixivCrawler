@@ -15,12 +15,10 @@ USER_ID = '22821761'
 #     "password": "xxx"
 # }
 PIXIV_ID = ""
-PASSWORD = ""
 try:
     with open('userdata.json') as f:
         user = json.load(f)
         PIXIV_ID = user['name']
-        PASSWORD = user['password']
 except FileNotFoundError:
     print("---do not find userdata.json---")
     sys.exit(0)
@@ -28,17 +26,20 @@ else:
     print("---load userdata.json successfully!---")
 
 # abort request/download after 5(default) unsuccessful attempts
-FAIL_TIMES = 10
+FAIL_TIMES = 15
 
 # wait seconds between each download
 # note that it should better be greater than 1 sec
-DOWNLOAD_DELAY = 2.5
+DOWNLOAD_DELAY = 1
+# wait seconds between each fail
+FAIL_DELAY = 2
+
 # image store path
 # only change name is OK, don't modify '\'
-IMAGES_STORE_PATH = 'images/'
+IMAGES_STORE_PATH = 'bookmark/'
 
 # start date
-START_DATE = datetime.date(2020, 7, 15)
+START_DATE = datetime.date(2020, 7, 25)
 # date domain
 # [start,start+domain-1]
 DOMAIN = 2

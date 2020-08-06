@@ -1,10 +1,10 @@
 from settings import *
 from login import Login
-import requests
 import os
 import sys
-from image_group import ImageGroup
+import requests
 from ranking_crawler import RankingCrawler
+from bookmark_crawler import BookmarkCrawler
 
 
 # load cookies from cookies.json
@@ -24,6 +24,18 @@ def checkfolder():
         print("create " + IMAGES_STORE_PATH + " folder  ")
 
 
-# 2nd parameter is flow capacity, default is 1024MB
-app = RankingCrawler(load_cookie(), 200)
-print("total flow used: " + str(app.run()) + 'MB')
+# fetch cookies
+# Login.fetch()
+
+checkfolder()
+
+# # download artworks from ranking
+# # 2nd parameter is flow capacity, default is 1024MB
+# app = RankingCrawler(load_cookie(), 200)
+# print("total flow used: " + str(app.run()) + 'MB')
+
+# download artworks from bookmark
+# 2nd parameter is max download number, default is 200
+app = BookmarkCrawler(load_cookie(), 4000)
+app.collect()
+app.run()

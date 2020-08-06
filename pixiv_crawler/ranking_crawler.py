@@ -47,7 +47,9 @@ class RankingCrawler():
         headers.update({'Referer': ref})
         for i in range(num):
             url = ref + '&p=' + str(i + 1) + '&format=json'
+            print("***total flow used: " + str(self.size) + "MB***")
             self.download_cnt = 0
+            # collect p=i+1
             for j in range(FAIL_TIMES):
                 try:
                     response = requests.get(url,
@@ -63,8 +65,9 @@ class RankingCrawler():
                     print("check your proxy setting")
                     print("maybe it was banned.")
                     print("This is " + str(j + 1) + " attempt")
-                    print("next attempt will start in 5 sec\n")
-                    time.sleep(5)
+                    print("next attempt will start in " + str(FAIL_DELAY) +
+                          " sec\n")
+                    time.sleep(FAIL_DELAY)
 
             if self.size >= self.capacity: break
             if self.download_cnt == ARTWORKS_PER: break

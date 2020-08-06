@@ -45,8 +45,9 @@ class ImageGroup():
                 print("check your proxy setting")
                 print("maybe it was banned.")
                 print("This is " + str(i + 1) + " attempt")
-                print("next attempt will start in 5 sec\n")
-                time.sleep(5)
+                print("next attempt will start in " + str(FAIL_DELAY) +
+                      " sec\n")
+                time.sleep(FAIL_DELAY)
 
         print("---fail to collect " + self.ref + '---')
 

@@ -2,6 +2,8 @@
 
 一个pixiv的爬虫
 
+本来以为爬太快会被暂时ban ip，然后发现好像不需要顾虑这个，~~可以选择性忽略ip was banned的提示~~
+
 ~~本来是想用scrapy写的，奈何太高级了用不来~~
 
 [TOC]
@@ -24,7 +26,7 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - chrome driver
 
-  下载地址[Link](http://npm.taobao.org/mirrors/chromedriver/)，下载chrome对映的版本
+  下载地址[Link](http://npm.taobao.org/mirrors/chromedriver/)，下载chrome对应的版本
 
   在windows环境建议直接把chromedriver.exe放入python的scripts目录
 
@@ -32,57 +34,56 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 0. `settings.py`的设置
 
-   > 这里没提到的都不用改
+   > 这里没提到的都不用改，带:warning:的务必修改
    >
    > `USER_ID`:warning:: 这里改成自己的uid，在profile页面的url里可以找到
    >
-   > `name/password`:warning::
+   > `name`:warning::
    >
    > ​	在同目录下新建一个userdata.json，填入以下内容
    >
-   > ​	其实这块目前好像用不上，~~但是先留着看看...~~
+   > ​	这里的name填入自己的账号，应该是邮箱什么的
    >
    > ​	运行时载入成功会有'load userdata.json successfully!'反馈
    >
    > ```json
    > {
-   >     "name":"xxxx",
-   >     "password":""
-   > }
+   >     "name":"xxxx@xxx"
+   >    }
    > ```
-   >
-   > `FAIL_TIMES`: 失败后尝试请求次数
-   >
-   > `DOWNLOAD_DELAY`: 下载延迟
-   >
-   > `IMAGES_STORE_PATH`: 图片保存目录，相对路径
-   >
-   > `START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
-   >
-   > `PIXIV_MODE`:warning:: 设置排行榜类型
-   >
-   > `ARTWORKS_PER`:warning:: 榜的前x幅作品
-   >
-   > `PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
-   >
-   > `USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login是调整chrome设置
-   >
-   > ​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
-
+   > 
+   >`FAIL_TIMES`: 失败后尝试请求次数
+   > 
+   >`DOWNLOAD_DELAY`: 下载延迟
+   > 
+   >`IMAGES_STORE_PATH`: 图片保存目录，相对路径
+   > 
+   >`START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
+   > 
+   >`PIXIV_MODE`:warning:: 设置排行榜类型
+   > 
+   >`ARTWORKS_PER`:warning:: 榜的前x幅作品
+   > 
+   >`PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
+   > 
+   >`USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login是调整chrome设置
+   > 
+   >​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
+   
 1. 获取cookies
 
    使用`login.py`，运行Login().login()
 
    ```python
    from login import Login
-   Login().login()
+   Login().fetch()
    ```
 
    运行一次即可，保存在cookie.json
 
    务必先阅读注意事项1-4
 
-2. 排行榜的抓取
+2. 排行榜/个人收藏的抓取
 
    见当前的`main.py`，需要提前配置好`settings.py`
 
@@ -120,13 +121,13 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [x] 排行榜 ranking_crawler
 
-- [ ] 个人收藏
+- [x] 个人收藏
 
-- [ ] 关注
+- [ ] 个人关注
 
-- [ ] 画师搜索
+- [ ] 某个画师作品
 
-- [ ] 标签搜索
+- [ ] ~~标签搜索~~（disallow in robots.txt）
 
 - [x] 多线程
 
@@ -183,4 +184,44 @@ Windows限定，~~不保证在其它平台可以使用~~
 ​	爬取排行榜
 
 - `bookmark_crawler.py`
+
+### 附录
+
+- `pixiv.net/robots.txt`
+
+```
+User-agent: *
+Disallow: /rpc/index.php?mode=profile_module_illusts&user_id=*&illust_id=*
+Disallow: /ajax/illust/*/recommend/init
+Disallow: *return_to*
+Disallow: /?return_to=
+Disallow: /login.php?return_to=
+Disallow: /index.php?return_to=
+
+//搜索功能
+Disallow: /tags/* * *
+Disallow: /tags/*%20*%20*
+
+Disallow: /users/*/followers
+Disallow: /users/*/mypixiv
+//别人的关注
+Disallow: /users/*/bookmarks
+Disallow: /novel/comments.php?id=
+
+
+Disallow: /en/group
+
+Disallow: /en/tags/* * *
+Disallow: /en/tags/*%20*%20*
+
+Disallow: /en/search/
+
+Disallow: /en/users/*/followers
+Disallow: /en/users/*/mypixiv
+Disallow: /en/users/*/bookmarks
+Disallow: /en/novel/comments.php?id=
+
+Disallow: /fanbox/search
+Disallow: /fanbox/tag
+```
 
