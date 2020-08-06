@@ -33,18 +33,24 @@ class Image(threading.Thread):
             return
 
         time.sleep(DOWNLOAD_DELAY)
+        wait_time = 10
         for i in range(FAIL_TIMES):
             try:
                 response = requests.get(self.url,
                                         headers=self.headers,
                                         proxies=PROXIES,
-                                        timeout=6)
+                                        timeout=(4, wait_time))
                 if response.status_code == 200:
+                    # avoid incomplete image
+                    if len(response.content
+                           ) != response.headers['content-length']:
+                        wait_time += 2
+                        continue
                     with open(IMAGES_STORE_PATH + self.name, "wb") as f:
                         f.write(response.content)
                     print("---download " + self.name + " successfully---")
                     time.sleep(DOWNLOAD_DELAY)
-                    self.size = len(response.content) / 1024 / 1024
+                    self.size = response.headers['content-length'] / 1024 / 1024
                     return
 
             except Exception as e:
@@ -58,3 +64,5 @@ class Image(threading.Thread):
                 time.sleep(FAIL_DELAY)
 
         print("---fail to download " + self.name + '---')
+        with open("fail_log.txt", "a+") as f:
+            f.write("fail to download " + self.name + '\n')

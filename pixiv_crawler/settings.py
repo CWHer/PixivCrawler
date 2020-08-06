@@ -26,13 +26,13 @@ else:
     print("---load userdata.json successfully!---")
 
 # abort request/download after 5(default) unsuccessful attempts
-FAIL_TIMES = 15
+FAIL_TIMES = 20
 
 # wait seconds between each download
-# note that it should better be greater than 1 sec
-DOWNLOAD_DELAY = 1
+# note that it should better be greater than 0.2 sec
+DOWNLOAD_DELAY = 0.5
 # wait seconds between each fail
-FAIL_DELAY = 2
+FAIL_DELAY = 1
 
 # image store path
 # only change name is OK, don't modify '\'

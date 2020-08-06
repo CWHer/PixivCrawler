@@ -50,6 +50,8 @@ class ImageGroup():
                 time.sleep(FAIL_DELAY)
 
         print("---fail to collect " + self.ref + '---')
+        with open("fail_log.txt", "a+") as f:
+            f.write("fail to collect " + self.ref + '\n')
 
     # download images in self.group
     # return size of image (MB)
