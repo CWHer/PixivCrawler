@@ -11,25 +11,25 @@ import os
 
 class Image(threading.Thread):
     def __init__(self, url):
-        # url sample: https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg
         threading.Thread.__init__(self)
+
+        # url sample: https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg
         self.url = url
         self.name = self.url[self.url.rfind('/') + 1:len(self.url)]
         self.id = re.search("/(\d+)_", self.url).group(1)
         self.ref = 'https://www.pixiv.net/artworks/' + self.id
         self.headers = {'Referer': self.ref}
         self.headers.update(BROWSER_HEADER)
+        # size of image (MB)
         self.size = 0
 
     # download image
-    # return size of image (MB)
     def run(self):
-        print("---start download " + self.name + '---')
-        time.sleep(1)
+        print("---start downloading " + self.name + '---')
+        time.sleep(2 / MAX_THREADS)
 
         if os.path.exists(IMAGES_STORE_PATH + self.name):
             print(self.name + ' already exists')
-            time.sleep(DOWNLOAD_DELAY)
             return
 
         time.sleep(DOWNLOAD_DELAY)
@@ -42,21 +42,22 @@ class Image(threading.Thread):
                                         timeout=(4, wait_time))
                 if response.status_code == 200:
                     # avoid incomplete image
-                    if len(response.content
-                           ) != response.headers['content-length']:
+                    if len(response.content) != int(
+                            response.headers['content-length']):
                         wait_time += 2
                         continue
                     with open(IMAGES_STORE_PATH + self.name, "wb") as f:
                         f.write(response.content)
                     print("---download " + self.name + " successfully---")
                     time.sleep(DOWNLOAD_DELAY)
-                    self.size = response.headers['content-length'] / 1024 / 1024
+                    self.size = int(
+                        response.headers['content-length']) / 1024 / 1024
                     return
 
             except Exception as e:
                 print(e)
                 print("check your proxy setting")
-                print("maybe it was banned.")
+                # print("maybe it was banned.")
                 print("This is " + str(i + 1) + " attempt to download " +
                       self.name)
                 print("next attempt will start in " + str(FAIL_DELAY) +
@@ -64,5 +65,4 @@ class Image(threading.Thread):
                 time.sleep(FAIL_DELAY)
 
         print("---fail to download " + self.name + '---')
-        with open("fail_log.txt", "a+") as f:
-            f.write("fail to download " + self.name + '\n')
+        write_fail_log('fail to download ' + self.name + '\n')

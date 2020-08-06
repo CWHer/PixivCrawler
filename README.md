@@ -2,11 +2,31 @@
 
 一个pixiv的爬虫
 
+```mermaid
+graph TD;
+	F[start]-->A;
+	A[crawler]--send illust_id-->B[collector];
+	B==run parallelly==>C(ImageGroup);
+	B--send Image class-->D[downloader];
+	D==run parallelly==>download;
+	D-->E[end];
+```
+
 本来以为爬太快会被暂时ban ip，然后发现好像不需要顾虑这个，~~可以选择性忽略ip was banned的提示~~
 
-~~本来是想用scrapy写的，奈何太高级了用不来~~
+~~如果遇到图只有半张的情况，大概是网不太好，~~现在确保size和response headers里的content-length一样大
 
 [TOC]
+
+### 版本记录
+
+#### Ver 1.0
+
+> 支持爬取排行榜和个人收藏
+>
+> 其中在收集图片信息和下载时支持多线程
+
+
 
 ### 部署方法
 
@@ -48,27 +68,29 @@ Windows限定，~~不保证在其它平台可以使用~~
    >
    > ```json
    > {
-   >     "name":"xxxx@xxx"
-   >    }
+   >  "name":"xxxx@xxx"
+   > }
    > ```
-   > 
-   >`FAIL_TIMES`: 失败后尝试请求次数
-   > 
-   >`DOWNLOAD_DELAY`: 下载延迟
-   > 
-   >`IMAGES_STORE_PATH`: 图片保存目录，相对路径
-   > 
-   >`START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
-   > 
-   >`PIXIV_MODE`:warning:: 设置排行榜类型
-   > 
-   >`ARTWORKS_PER`:warning:: 榜的前x幅作品
-   > 
-   >`PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
-   > 
-   >`USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login是调整chrome设置
-   > 
-   >​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
+   >
+   > `FAIL_TIMES`: 失败后尝试请求次数
+   >
+   > `DOWNLOAD_DELAY/FAIL_DELAY`: 下载/失败后延时
+   >
+   > `MAX_THREADS`: 最大并行线程数
+   >
+   > `IMAGES_STORE_PATH`: 图片保存目录，相对路径
+   >
+   > `START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
+   >
+   > `PIXIV_MODE`:warning:: 设置排行榜类型
+   >
+   > `ARTWORKS_PER`:warning:: 榜的前x幅作品
+   >
+   > `PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
+   >
+   > `USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login是调整chrome设置
+   >
+   > ​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
    
 1. 获取cookies
 
@@ -105,6 +127,8 @@ Windows限定，~~不保证在其它平台可以使用~~
 
    基本上几天内用同一个cookie不会有大问题，等过期了再次抓取即可
 
+
+
 ### 基本功能
 
 - [x] ~~模拟登录~~
@@ -123,6 +147,8 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [x] 个人收藏
 
+- [x] fail log
+
 - [ ] 个人关注
 
 - [ ] 某个画师作品
@@ -139,7 +165,11 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [ ] cookies池
 
+
+
 ### 主要模块
+
+#### 基础类
 
 - json sample
 
@@ -161,11 +191,17 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 ​	使用selenium抓取已登录的cookies并保存在cookies.json
 
+#### 图片收集/下载
+
 - `image.py`: 
 
 ​	传入类似"xxxx://i.pximg.net/img-original/img/xxxxx/xxxxxx_p0.jpg"的url
 
 ​	图片类，提供下载方法，可以多线程执行
+
+- `downloader.py`
+
+​	下载器，可以多线程调度Image类
 
 - `image_group.py`: 
 
@@ -173,7 +209,11 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 ​	从".../artworks/xxxx"网页收集所有图片
 
-- `main.py`
+- `collector.py`
+
+​	收集器，可以多线程调度ImageGroup类
+
+#### 各种类型的爬虫
 
 - `ranking_crawler.py`
 
@@ -184,6 +224,14 @@ Windows限定，~~不保证在其它平台可以使用~~
 ​	爬取排行榜
 
 - `bookmark_crawler.py`
+
+#### 主函数
+
+- `main.py`
+
+​	汇总各种爬虫的使用方法
+
+
 
 ### 附录
 

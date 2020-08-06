@@ -1,6 +1,19 @@
 import datetime
 import json
 import sys
+import threading
+
+
+# append text in fail_log.txt
+def write_fail_log(text):
+    WRITE_FAIL_LOG_LOCK.acquire()
+    with open("fail_log.txt", "a+") as f:
+        f.write(text)
+    WRITE_FAIL_LOG_LOCK.release()
+
+
+# threadinglock used in write_fail_log
+WRITE_FAIL_LOG_LOCK = threading.Lock()
 
 # user id
 # access your pixiv user profile to find this
@@ -33,10 +46,12 @@ FAIL_TIMES = 20
 DOWNLOAD_DELAY = 0.5
 # wait seconds between each fail
 FAIL_DELAY = 1
+# max parallel threads number
+MAX_THREADS = 20
 
 # image store path
 # only change name is OK, don't modify '\'
-IMAGES_STORE_PATH = 'bookmark/'
+IMAGES_STORE_PATH = 'images/'
 
 # start date
 START_DATE = datetime.date(2020, 7, 25)

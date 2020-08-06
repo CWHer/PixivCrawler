@@ -1,6 +1,7 @@
 userdata.json
 cookies.json
-images
-bookmark
+images/
+image/
+bookmark/
 test*
 __pycache__

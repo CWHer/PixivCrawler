@@ -1,15 +1,18 @@
 # image group
 # collect several images in a web
-#   like https://www.pixiv.net/artworks/83398062
+#   in the form of https://www.pixiv.net/artworks/83398062
 from settings import *
 from image import Image
 import requests
+import threading
 import time
 import re
 
 
-class ImageGroup():
+class ImageGroup(threading.Thread):
     def __init__(self, illust_id, cookie):
+        threading.Thread.__init__(self)
+
         self.id = illust_id
         # url sample: https://www.pixiv.net/artworks/83398062
         self.ref = 'https://www.pixiv.net/artworks/' + self.id
@@ -22,10 +25,12 @@ class ImageGroup():
         self.group = []
 
     # request 'page' to collect all images' url
-    # return a dict of url
-    def collect(self):
-        print("---start collect " + self.ref + '---')
+    #   and add to self.group
+    def run(self):
+        print("---start collecting " + self.ref + '---')
+        time.sleep(2 / MAX_THREADS)
 
+        time.sleep(DOWNLOAD_DELAY)
         for i in range(FAIL_TIMES):
             try:
                 response = requests.get(self.url,
@@ -43,23 +48,12 @@ class ImageGroup():
             except Exception as e:
                 print(e)
                 print("check your proxy setting")
-                print("maybe it was banned.")
-                print("This is " + str(i + 1) + " attempt")
+                # print("maybe it was banned.")
+                print("This is " + str(i + 1) + " attempt to collect " +
+                      self.url)
                 print("next attempt will start in " + str(FAIL_DELAY) +
                       " sec\n")
                 time.sleep(FAIL_DELAY)
 
         print("---fail to collect " + self.ref + '---')
-        with open("fail_log.txt", "a+") as f:
-            f.write("fail to collect " + self.ref + '\n')
-
-    # download images in self.group
-    # return size of image (MB)
-    def download(self):
-        ret = 0
-        for image in self.group:
-            image.start()
-        for image in self.group:
-            image.join()
-            ret += image.size
-        return ret
+        write_fail_log('fail to collect ' + self.ref + '\n')
