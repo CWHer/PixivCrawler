@@ -22,9 +22,13 @@ class Downloader():
         # stop downloading once exceeding capacity
         flow_flag = 0
         pool = []
+        pre_size = self.size
         print("---downloader start---")
         while (len(self.group) or len(pool)) and not flow_flag:
-            time.sleep(DOWNLOAD_DELAY)
+            time.sleep(0.05)
+            if self.size != pre_size:
+                pre_size = self.size
+                print("***total flow used: " + str(self.size) + "MB***")
             # send image to parallel pool
             while len(pool) < MAX_THREADS and len(self.group):
                 pool.append(self.group.pop())

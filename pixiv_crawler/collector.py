@@ -3,6 +3,7 @@
 from settings import *
 from image_group import ImageGroup
 from downloader import Downloader
+import time
 
 
 class Collector():
@@ -22,6 +23,7 @@ class Collector():
         print("---collector start---")
 
         while len(self.group) or len(pool):
+            time.sleep(0.05)
             # send imagegroup to parallel pool
             while len(pool) < MAX_THREADS and len(self.group):
                 pool.append(self.group.pop())
