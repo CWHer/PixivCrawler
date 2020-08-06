@@ -24,7 +24,13 @@ graph TD;
 
 > 支持爬取排行榜和个人收藏
 >
-> 其中在收集图片信息和下载时支持多线程
+> 其中每页收藏都支持多线程
+>
+> 在收集图片信息和下载时也支持多线程
+>
+> 但排行榜的每天不支持多线程
+
+#### Ver 1.1
 
 
 
@@ -182,6 +188,12 @@ Windows限定，~~不保证在其它平台可以使用~~
 > ​	from ".../artworks/xxxx"
 >
 > ​	request "..../ajax/illust/xxxx"
+>
+> `user.json`:
+>
+> ​	from "..../users/xxxx/illustrations"
+>
+> ​	request "...../ajax/user/xxxxx/profile/all?lang=zh"
 
 - `settings.json`: 所有设置都在这里，见**部署方法**
 

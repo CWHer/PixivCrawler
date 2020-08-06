@@ -28,7 +28,6 @@ class ImageGroup(threading.Thread):
     #   and add to self.group
     def run(self):
         print("---start collecting " + self.ref + '---')
-        time.sleep(2 / MAX_THREADS)
 
         time.sleep(DOWNLOAD_DELAY)
         for i in range(FAIL_TIMES):

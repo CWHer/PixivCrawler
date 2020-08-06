@@ -36,6 +36,5 @@ checkfolder()
 
 # download artworks from bookmark
 # 2nd parameter is max download number, default is 200
-app = BookmarkCrawler(load_cookie(), 4000)
-app.collect()
+app = BookmarkCrawler(load_cookie(), 4000, 4096)
 app.run()

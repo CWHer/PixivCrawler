@@ -1,0 +1,59 @@
+{
+    "error": false,
+    "message": "",
+    "body": {
+        "illusts": {
+            "82140995": null,
+            "81113998": null,
+            "81060761": null,
+            "76707966": null,
+            "76559068": null,
+            "76371059": null,
+            "74995792": null,
+            "73580193": null,
+            "73408867": null,
+            "73375807": null,
+            "73314337": null,
+            "73263868": null,
+            "73246823": null,
+            "73188196": null,
+            "72354377": null,
+            "70306093": null,
+            "69767805": null,
+            "69371186": null,
+            "69311584": null,
+            "66294374": null,
+            "64686425": null,
+            "64346020": null,
+            "62274109": null,
+            "62273988": null
+        },
+        "manga": [],
+        "novels": [],
+        "mangaSeries": [],
+        "novelSeries": [],
+        "pickup": [],
+        "bookmarkCount": {
+            "public": {
+                "illust": 1,
+                "novel": 0
+            },
+            "private": {
+                "illust": 0,
+                "novel": 0
+            }
+        },
+        "externalSiteWorksStatus": {
+            "booth": false,
+            "sketch": false,
+            "vroidHub": false
+        },
+        "request": {
+            "hasRequest": false,
+            "postWorks": {
+                "artworks": [],
+                "novels": []
+            }
+        }
+    }
+}

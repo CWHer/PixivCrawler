@@ -5,3 +5,4 @@ image/
 bookmark/
 test*
 __pycache__
+fail_log.txt
