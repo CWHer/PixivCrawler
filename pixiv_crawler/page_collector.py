@@ -8,19 +8,18 @@ import threading
 import requests
 
 
-class Page(threading.Thread):
-    # default ref:
-    def __init__(self, url, cookie, ref=None):
+class CollectorUnit(threading.Thread):
+    def __init__(self, url, cookie, headers=None):
         threading.Thread.__init__(self)
 
         self.url = url
         self.cookie = cookie
         self.headers = BROWSER_HEADER
-        if ref != None:
-            self.headers.update({"Referer": ref})
+        if headers != None:
+            self.headers.update(headers)
 
     def run(self):
-        print("---start collecting page " + self.url + '---')
+        print('---start collecting ' + self.url + '---')
 
         time.sleep(DOWNLOAD_DELAY)
         for i in range(FAIL_TIMES):
