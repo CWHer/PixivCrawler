@@ -45,11 +45,11 @@ class Image(threading.Thread):
                     if len(response.content) != int(
                             response.headers['content-length']):
                         wait_time += 2
+                        time.sleep(DOWNLOAD_DELAY)
                         continue
                     with open(IMAGES_STORE_PATH + self.name, "wb") as f:
                         f.write(response.content)
                     print("---download " + self.name + " successfully---")
-                    time.sleep(DOWNLOAD_DELAY)
                     self.size = int(
                         response.headers['content-length']) / 1024 / 1024
                     return

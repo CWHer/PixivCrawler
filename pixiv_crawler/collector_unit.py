@@ -1,22 +1,24 @@
-# collect artworks from a classical page
-#   e.g. https://www.pixiv.net/bookmark.php?rest=show&p=1
-#   and collect all artworks/xxxxx
+# collect illust id from json/page
+#   e.g.: user.json/page.json/rank.json
+#   use different selector to function accordingly
 from settings import *
 import time
-import re
 import threading
 import requests
 
 
 class CollectorUnit(threading.Thread):
-    def __init__(self, url, cookie, headers=None):
+    # note that selector is a function
+    def __init__(self, url, cookie, selector, headers=None):
         threading.Thread.__init__(self)
 
         self.url = url
         self.cookie = cookie
+        self.selector = selector
         self.headers = BROWSER_HEADER
         if headers != None:
             self.headers.update(headers)
+        self.group = set()
 
     def run(self):
         print('---start collecting ' + self.url + '---')
@@ -30,8 +32,8 @@ class CollectorUnit(threading.Thread):
                                         cookies=self.cookie,
                                         timeout=4)
                 if response.status_code == 200:
-                    self.group = set(
-                        re.findall("artworks/(\d+)", response.text))
+                    self.group = self.selector(response)
+                    print('---collect ' + self.url + " complete---")
                     return
 
             except Exception as e:
@@ -44,5 +46,5 @@ class CollectorUnit(threading.Thread):
                       " sec\n")
                 time.sleep(FAIL_DELAY)
 
-        print("---fail to collect page " + self.url + '---')
-        write_fail_log('fail to collect page ' + self.url + '\n')
+        print('---fail to collect ' + self.url + '---')
+        write_fail_log('fail to collect ' + self.url + '\n')

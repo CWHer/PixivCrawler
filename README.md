@@ -6,9 +6,9 @@
 graph TD;
 	F[start]-->A;
 	A[crawler]--send illust_id-->B[collector];
-	B==run parallelly==>C(ImageGroup);
-	B--send Image class-->D[downloader];
-	D==run parallelly==>download;
+	B==run parallelly==>C(unit/image_group_selector);
+	B--send image url-->D[downloader];
+	D==run parallelly==>G(image.download);
 	D-->E[end];
 ```
 
@@ -22,15 +22,33 @@ graph TD;
 
 #### Ver 1.0
 
-> 支持爬取排行榜和个人收藏
+> - 支持爬取排行榜和个人收藏
 >
-> 其中每页收藏都支持多线程
+> ​	其中每页收藏都支持多线程
 >
-> 在收集图片信息和下载时也支持多线程
+> ​	在收集图片信息和下载时也支持多线程
 >
-> 但排行榜的每天不支持多线程
+> ​	但排行榜的每天不支持多线程
 
 #### Ver 1.1
+
+> - 把一些通用函数并入了`settings.py`
+>
+> - 把从json和page收集illust_id的模块整合到了collectunit，通过传入不同的selector来筛选不同的数据
+>
+> ​	`page.py`和`image_group.py`现在通过传入`page_selector`和`image_group_selector`来实现
+>
+> - 收藏与排行榜下载
+>
+> ​	bookmark: 支持每页收藏并行，传入`page_selector`
+>
+> ​	ranking: 支持每天的json并行，传入`ranking_selector`
+>
+> - 移除了对下载数量的精确中断
+>
+> ​	由于并行，无法精确中断
+>
+> ​	以50 items/json为例，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
 
 
 
@@ -133,8 +151,6 @@ Windows限定，~~不保证在其它平台可以使用~~
 
    基本上几天内用同一个cookie不会有大问题，等过期了再次抓取即可
 
-
-
 ### 基本功能
 
 - [x] ~~模拟登录~~
@@ -163,8 +179,6 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [x] 多线程
 
-  image.py 现在使用了threading，现在每个page并发image.download
-
 - [x] 流量控制
 
 - [ ] 数据库构建
@@ -176,6 +190,18 @@ Windows限定，~~不保证在其它平台可以使用~~
 ### 主要模块
 
 #### 基础类
+
+- selector function
+
+> 用法见注释
+>
+> `image_group_selector`
+>
+> `ranking_selector`
+>
+> `user_selector`
+>
+> `page_selector`
 
 - json sample
 
@@ -215,11 +241,9 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 ​	下载器，可以多线程调度Image类
 
-- `image_group.py`: 
+- `collector_unit.py`: 
 
-​	传入illust_id和cookie，其中illust_id就是下面xxxx部分的数字
-
-​	从".../artworks/xxxx"网页收集所有图片
+​	一个通用的收集器单元，通过传入不同的selector来筛选数据
 
 - `collector.py`
 
@@ -236,6 +260,12 @@ Windows限定，~~不保证在其它平台可以使用~~
 ​	爬取排行榜
 
 - `bookmark_crawler.py`
+
+​	传入cookie，num=200，capacity=1024
+
+​	分别指定下载数量和大小
+
+​	爬取个人公开的收藏
 
 #### 主函数
 

@@ -8,15 +8,14 @@ import time
 
 class Downloader():
     def __init__(self, capacity):
-        # group of Image()
+        # group of url
         self.group = set()
         self.size = 0
         self.capacity = capacity
 
-    # add Image() from ImageGroup
-    # group in ImageGroup is list
+    # add url from image_grouo_selector
     def add(self, group):
-        self.group |= set(group)
+        self.group |= group
 
     def download(self):
         # stop downloading once exceeding capacity
@@ -31,7 +30,7 @@ class Downloader():
                 print("***total flow used: " + str(self.size) + "MB***")
             # send image to parallel pool
             while len(pool) < MAX_THREADS and len(self.group):
-                pool.append(self.group.pop())
+                pool.append(Image(self.group.pop()))
                 pool[-1].start()
             # remove complete thread
             i = 0

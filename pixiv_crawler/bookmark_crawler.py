@@ -5,7 +5,7 @@ import re
 import sys
 import time
 from collector import Collector
-from page import Page
+from collector_unit import CollectorUnit
 
 
 class BookmarkCrawler():
@@ -69,22 +69,22 @@ class BookmarkCrawler():
         # store all pages' url in self.group
         self.group = set()
         for i in range(num):
-            url = self.url + '&p=' + str(i + 1)
-            self.group.add(Page(url, self.cookie))
+            self.group.add(self.url + '&p=' + str(i + 1))
 
         while len(self.group) or len(pool):
             time.sleep(0.05)
             # send page to parallel pool
             while len(pool) < MAX_THREADS and len(self.group):
-                pool.append(self.group.pop())
+                pool.append(
+                    CollectorUnit(self.group.pop(), self.cookie,
+                                  page_selector))
                 pool[-1].start()
             # remove complete thread
             i = 0
             while i < len(pool):
                 page = pool[i]
                 if not page.isAlive():
-                    for illust_id in page.group:
-                        self.collector.add(illust_id)
+                    self.collector.add(page.group)
                     print("--send page " + page.url + " to collector--")
                     pool.remove(page)
                     continue

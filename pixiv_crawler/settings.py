@@ -2,6 +2,12 @@ import datetime
 import json
 import sys
 import threading
+import os
+import requests
+import re
+
+# threadinglock used in write_fail_log
+WRITE_FAIL_LOG_LOCK = threading.Lock()
 
 
 # append text in fail_log.txt
@@ -12,8 +18,59 @@ def write_fail_log(text):
     WRITE_FAIL_LOG_LOCK.release()
 
 
-# threadinglock used in write_fail_log
-WRITE_FAIL_LOG_LOCK = threading.Lock()
+# load cookies from cookies.json
+def load_cookie():
+    ret = requests.cookies.RequestsCookieJar()
+    with open("cookies.json", "r") as f:
+        cookies = json.load(f)
+        for cookie in cookies:
+            ret.set(cookie['name'], cookie['value'])
+    return ret
+
+
+# create folder
+def checkfolder():
+    if not os.path.exists(IMAGES_STORE_PATH):
+        os.makedirs(IMAGES_STORE_PATH)
+        print("create " + IMAGES_STORE_PATH + " folder  ")
+
+
+# ---selector begin---
+# url:https://www.pixiv.net/ajax/illust/xxxx/pages?lang=zh
+# collect all images' url from (page.json)
+# return url
+def image_group_selector(response):
+    group = set()
+    for url in response.json()['body']:
+        group.add(url['urls']['original'])
+    return group
+
+
+# url:https://www.pixiv.net/ranking.php?mode=daily&date=20200801&p=1&format=json
+# collect all illust_id from (ranking.json)
+# return illust_id
+def ranking_selector(response):
+    group = set()
+    for artwork in response.json()['contents']:
+        group.add(str(artwork['illust_id']))
+    return group
+
+
+# url:https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh
+# collect all illust_id from (user.json)
+# return illust_id
+def user_selector(response):
+    return set(response.json()['body']['illusts'].keys())
+
+
+# url:https://www.pixiv.net/bookmark.php?rest=show&p=1
+# collect all artworks/xxxx
+# return illust_id
+def page_selector(response):
+    return set(re.findall("artworks/(\d+)", response.text))
+
+
+# ---selector end---
 
 # user id
 # access your pixiv user profile to find this
