@@ -49,6 +49,8 @@ graph TD;
 > ​	由于并行，无法精确中断
 >
 > ​	以50 items/json为例，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
+>
+> - 单个画师所有作品下载
 
 
 
@@ -129,9 +131,46 @@ Windows限定，~~不保证在其它平台可以使用~~
 
    务必先阅读注意事项1-4
 
-2. 排行榜/个人收藏的抓取
+2. 排行榜/个人收藏/画师作品的抓取
 
    见当前的`main.py`，需要提前配置好`settings.py`
+   
+   `ranking`
+   
+   ​	需要在`settings.py`中设置模式/日期/范围/每天下载数量
+   
+   ​	第二个参数为流量限制
+   
+   ```
+   app = RankingCrawler(load_cookie(), 200)
+   app.run()
+   ```
+   
+   `bookmark`
+   
+   ​	需要在`settings.py`中设置好个人id
+   
+   ​	下载当前登录用户的公开个人收藏
+   
+   ​	第二个参数为数量限制，第三个参数为流量限制
+   
+   ```
+   app = BookmarkCrawler(load_cookie(), 40, 4096)
+   app.run()
+   ```
+   
+   `user`
+   
+   ​	下载指定画师的所有作品
+   
+   ​	第一个参数为画师id，第三个参数为流量限制
+   
+   ```
+   app = UserCrawler('23945843', load_cookie(), 200)
+   app.run()
+   ```
+   
+   
 
 #### 3.注意事项:warning::warning::warning:
 
@@ -173,7 +212,7 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [ ] 个人关注
 
-- [ ] 某个画师作品
+- [x] 某个画师作品
 
 - [ ] ~~标签搜索~~（disallow in robots.txt）
 
@@ -261,11 +300,17 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - `bookmark_crawler.py`
 
-​	传入cookie，num=200，capacity=1024
+​	传入cookie,num=200,capacity=1024
 
 ​	分别指定下载数量和大小
 
 ​	爬取个人公开的收藏
+
+- `users_crawler.py`
+
+​	传入画师id,cookie,capacity=1024
+
+​	下载单个画师的所有作品
 
 #### 主函数
 

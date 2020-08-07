@@ -3,6 +3,7 @@ cookies.json
 images/
 image/
 bookmark/
+user/
 test*
 __pycache__
 fail_log.txt
