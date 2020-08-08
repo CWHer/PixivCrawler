@@ -2,11 +2,15 @@
 
 一个pixiv的爬虫
 
+模块化程度高，耦合度低
+
+例如有url的话可以考虑直接传入downloader这个多线程下载器（比如配合[Pxer](https://github.com/FoXZilla/Pxer)使用）
+
 ```mermaid
 graph TD;
 	F[start]-->A;
 	A[crawler]--send illust_id-->B[collector];
-	B==run parallelly==>C(unit/image_group_selector);
+	B==run parallelly==>C(collector_unit);
 	B--send image url-->D[downloader];
 	D==run parallelly==>G(image.download);
 	D-->E[end];
@@ -114,7 +118,7 @@ Windows限定，~~不保证在其它平台可以使用~~
    >
    > `PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
    >
-   > `USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login是调整chrome设置
+   > `USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login时调整chrome设置
    >
    > ​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
    
@@ -219,6 +223,8 @@ Windows限定，~~不保证在其它平台可以使用~~
 - [x] 多线程
 
 - [x] 流量控制
+
+- [ ] tags
 
 - [ ] 数据库构建
 
