@@ -3,6 +3,9 @@ cookies.json
 images/
 image/
 bookmark/
+images_lib/
+out.jpg
+images.zip
 user/
 test*
 __pycache__

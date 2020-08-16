@@ -56,9 +56,18 @@ graph TD;
 >
 > - 单个画师所有作品下载
 >
-> - 加入了标签selector，可以在`collector.py`选用`collect_tags()`
+> - 标签selector，可以在`collector.py`选用`collect_tags()`
 >
 > ​	启用后，在图片下载文件夹内生成一个`tags.json`记录每张作品的标签
+>
+> - 马赛克拼图`mix.py`
+>
+> ​	[原项目地址](https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py)，使用方法不完全一样
+>
+> ​	待优化:
+>
+> - [ ] 基于KD Tree优化邻近搜索
+> - [ ] 使用MCMF来获得最优匹配
 
 
 
@@ -228,7 +237,9 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [x] 流量控制
 
-- [ ] tags
+- [x] tags
+
+- [ ] 优化输出内容
 
 - [ ] 数据库构建
 
