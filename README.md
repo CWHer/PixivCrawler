@@ -64,6 +64,22 @@ graph TD;
 >
 > ​	[原项目地址](https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py)，使用方法不完全一样
 >
+> > `SLICE_SIZE`: 图片块大小
+> >
+> > `WIDTH,HEIGHT`: 输出图片大小
+> >
+> > `IN_DIR`: 未经过处理图片目录
+> >
+> > `OUT_DIR`: 处理后的图片库
+> >
+> > `DIFF_DIST`: 最大距离
+> >
+> > `REPEAT_TIMES`: 重复次数-1
+> >
+> > `FIRST_TIME`: 是否处理IN_DIR的图片，每次调整SLICE_SIZE后运行一次即可
+> >
+> > `image`: 需要拼接的图片的位置
+>
 > ​	待优化:
 >
 > - [ ] 基于KD Tree优化邻近搜索

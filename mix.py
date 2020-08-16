@@ -118,9 +118,10 @@ def get_image_paths():
     return paths
 
 
-def resize_pic(in_name, size):
+def resize_pic(in_name, width, height=None):
+    if height == None: height = width
     img = Image.open(in_name)
-    img = ImageOps.fit(img, (size, size), Image.ANTIALIAS)
+    img = ImageOps.fit(img, (width, height), Image.ANTIALIAS)
     return img
 
 
@@ -156,17 +157,18 @@ def read_img_db():
 
 
 SLICE_SIZE = 100
-OUT_SIZE = 5000
+WIDTH = 7500
+HEIGHT = 5000
 IN_DIR = "images/"
 OUT_DIR = "images_lib/"
 DIFF_DIST = 1000
-REPEAT_TIMES = 0
+REPEAT_TIMES = 1
 
 start_time = time.time()
 FIRST_TIME = False
 if FIRST_TIME: convert_all_images()
 image = 'images/82878621_p1.jpg'
-img = resize_pic(image, OUT_SIZE)
+img = resize_pic(image, WIDTH, HEIGHT)
 list_of_imgs = read_img_db()
 result = make_puzzle(img, list_of_imgs)
 # blend target&result
