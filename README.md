@@ -55,6 +55,10 @@ graph TD;
 > ​	以50 items/json为例，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
 >
 > - 单个画师所有作品下载
+>
+> - 加入了标签selector，可以在`collector.py`选用`collect_tags()`
+>
+> ​	启用后，在图片下载文件夹内生成一个`tags.json`记录每张作品的标签
 
 
 
@@ -241,6 +245,8 @@ Windows限定，~~不保证在其它平台可以使用~~
 > 用法见注释
 >
 > `image_group_selector`
+>
+> `tags_selector`
 >
 > `ranking_selector`
 >

@@ -17,9 +17,48 @@ class Collector():
     def add(self, group):
         self.group |= group
 
+    # optional function
+    # collect images' tags
+    #   and dump into tags.json
+    def collect_tags(self):
+        self.tags = dict()
+        # a copy of self.group
+        group = self.group.copy()
+        pool = []
+        print('---tags collector start---')
+
+        while len(group) or len(pool):
+            time.sleep(0.05)
+            # send tags_collector to parallel pool
+            while len(pool) < MAX_THREADS and len(group):
+                illust_id = group.pop()
+                ref = 'https://www.pixiv.net/bookmark.php?type=user'
+                url = 'https://www.pixiv.net/artworks/' + illust_id
+                headers = {'Referer': ref}
+                pool.append(
+                    CollectorUnit(url, self.cookie, tags_selector, headers))
+                pool[-1].start()
+            # remove complete thread
+            i = 0
+            while i < len(pool):
+                tag_group = pool[i]
+                if not tag_group.isAlive():
+                    illust_id = re.search('artworks/(\d+)',
+                                          tag_group.url).group(1)
+                    self.tags[illust_id] = tag_group.group
+                    pool.remove(tag_group)
+                    continue
+                i += 1
+
+        with open(IMAGES_STORE_PATH + 'tags.json', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(self.tags, indent=4, ensure_ascii=False))
+        print('---tags collector complete---')
+
     # collect image from self.group
     #   and send to self.downloader
     def collect(self):
+        self.collect_tags()
+
         pool = []
         print("---collector start---")
 

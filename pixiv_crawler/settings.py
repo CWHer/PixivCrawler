@@ -5,6 +5,7 @@ import threading
 import os
 import requests
 import re
+from pyquery import PyQuery as pq
 
 # threadinglock used in write_fail_log
 WRITE_FAIL_LOG_LOCK = threading.Lock()
@@ -43,6 +44,24 @@ def image_group_selector(response):
     group = set()
     for url in response.json()['body']:
         group.add(url['urls']['original'])
+    return group
+
+
+# url:https://www.pixiv.net/artworks/xxxxxx
+# collect image tags
+# return a list of tags
+def tags_selector(response):
+    group = []
+    doc = pq(response.text)
+    illust_id = re.search('artworks/(\d+)', response.url).group(1)
+    content = json.loads(doc('#meta-preload-data').attr('content'))
+    tags = content['illust'][illust_id]['tags']['tags']
+    for tag in tags:
+        translation = tag.get('translation')
+        if translation == None:
+            group.append(tag['tag'])
+        else:
+            group.append(translation['en'])
     return group
 
 
