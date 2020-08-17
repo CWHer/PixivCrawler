@@ -74,7 +74,7 @@ graph TD;
 > >
 > > `DIFF_DIST`: 最大距离
 > >
-> > `REPEAT_TIMES`: 重复次数-1
+> > `REPEAT_TIMES`: 重复次数
 > >
 > > `FIRST_TIME`: 是否处理IN_DIR的图片，每次调整SLICE_SIZE后运行一次即可
 > >
@@ -82,7 +82,10 @@ graph TD;
 >
 > ​	待优化:
 >
-> - [ ] 基于KD Tree优化邻近搜索
+> - [x] 基于~~KD Tree~~优化邻近搜索
+>
+>   KD Tree查找写不来，写了BVH Tree
+>
 > - [ ] 使用MCMF来获得最优匹配
 
 

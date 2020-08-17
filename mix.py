@@ -1,4 +1,5 @@
 # from:https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py
+#   原作者英语似乎不是特别好,好几个拼写错误....
 # 大致流程
 #   if FIRST_TIME 图片库->色块
 #   遍历图片,选取距离最小的色块
@@ -29,6 +30,14 @@ import math
 import sys
 from colorsys import rgb_to_hsv
 import re
+from bvh import *
+
+
+def resize_pic(in_name, width, height=None):
+    if height == None: height = width
+    img = Image.open(in_name)
+    img = ImageOps.fit(img, (width, height), Image.ANTIALIAS)
+    return img
 
 
 def get_avg_color(img):
@@ -58,26 +67,19 @@ def get_avg_color(img):
     return (hAvg, sAvg, vAvg)
 
 
-def find_closiest(color, colors_list):
-    cur_closer = False
-    arr_len = 0
-    dist = DIFF_DIST
-    for img in colors_list:
-        n_diff = math.sqrt(
-            math.pow(math.fabs(color[0] - img[0]), 2) +
-            math.pow(math.fabs(color[1] - img[1]), 2) +
-            math.pow(math.fabs(color[2] - img[2]), 2))
-        if n_diff < dist and img[3] <= REPEAT_TIMES:
-            dist = n_diff
-            cur_closer = img
-    if not cur_closer:
+def find_closest(color):
+    t.dist = DIFF_DIST
+    t.query(0, Pos(color[0], color[1], color[2]))
+    if t.dist == DIFF_DIST:
         raise ValueError(
             "no enough approximate picture. recommend increase REPEAT_TIMES")
-    cur_closer[3] += 1
-    return "({}, {}, {})".format(cur_closer[0], cur_closer[1], cur_closer[2])
+    ans = t.nodes[t.ans].box.mx
+    t.nodes[t.ans].used_times += 1
+    if t.nodes[t.ans].used_times >= REPEAT_TIMES: t.remove(t.ans, 1)
+    return "({}, {}, {})".format(ans.pos[0], ans.pos[1], ans.pos[2])
 
 
-def make_puzzle(img, color_list):
+def make_puzzle(img):
     width, height = img.size
     print("Width = {}, Height = {}".format(width, height))
     background = Image.new('RGB', img.size, (255, 255, 255))
@@ -89,7 +91,7 @@ def make_puzzle(img, color_list):
             try:
                 block = img.crop((x, y, x + SLICE_SIZE, y + SLICE_SIZE))
                 block = get_avg_color(block)
-                close_img_name = find_closiest(block, color_list)
+                close_img_name = find_closest(block)
                 close_img_name = OUT_DIR + str(close_img_name) + '.jpg'
                 paste_img = Image.open(close_img_name)
                 bar_size = math.floor(images_cnt / total_images * 100)
@@ -103,6 +105,7 @@ def make_puzzle(img, color_list):
     return background
 
 
+# image lib begin
 def get_image_paths():
     paths = []
     suffixes = ['jpg']
@@ -116,13 +119,6 @@ def get_image_paths():
         raise IOError("none image is found")
     print("images found: " + str(len(paths)))
     return paths
-
-
-def resize_pic(in_name, width, height=None):
-    if height == None: height = width
-    img = Image.open(in_name)
-    img = ImageOps.fit(img, (width, height), Image.ANTIALIAS)
-    return img
 
 
 def convert_image(path):
@@ -145,14 +141,16 @@ def convert_all_images():
     print("\nconvert complete")
 
 
+#image lib end
+
+
 def read_img_db():
     img_db = []
     for item in os.listdir(OUT_DIR):
         if item != 'None.jpg':
             item = item.split('.jpg')[0]
             item = list(map(float, item[1:-1].split(',')))
-            item.append(0)
-            img_db.append(item)
+            img_db.append(Pos(item[0], item[1], item[2]))
     return img_db
 
 
@@ -162,15 +160,16 @@ HEIGHT = 5000
 IN_DIR = "images/"
 OUT_DIR = "images_lib/"
 DIFF_DIST = 1000
-REPEAT_TIMES = 1
+REPEAT_TIMES = 2
 
 start_time = time.time()
 FIRST_TIME = False
 if FIRST_TIME: convert_all_images()
 image = 'images/82878621_p1.jpg'
 img = resize_pic(image, WIDTH, HEIGHT)
-list_of_imgs = read_img_db()
-result = make_puzzle(img, list_of_imgs)
+t = BVH()
+t.build(None, read_img_db())
+result = make_puzzle(img)
 # blend target&result
 img = Image.blend(result, img, 0.5)
 img.save('out.jpg')
