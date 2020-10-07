@@ -57,7 +57,7 @@ class Collector():
     # collect image from self.group
     #   and send to self.downloader
     def collect(self):
-        self.collect_tags()
+        # self.collect_tags()
 
         pool = []
         print("---collector start---")
