@@ -5,7 +5,8 @@ from bookmark_crawler import BookmarkCrawler
 from users_crawler import UserCrawler
 
 # fetch cookies
-# Login.fetch()
+# browser = Login()
+# browser.fetch()
 
 checkfolder()
 
@@ -22,5 +23,5 @@ checkfolder()
 
 # download all artworks from a single artist
 # 2nd parameter is flow capacity, default is 1024MB
-app = UserCrawler('2509595', load_cookie(), 2000)
-app.run()
+# app = UserCrawler('2509595', load_cookie(), 2000)
+# app.run()

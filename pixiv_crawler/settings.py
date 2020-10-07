@@ -156,7 +156,7 @@ PROXIES = {'https': '127.0.0.1:1080'}
 # default: chrome
 BROWSER_HEADER = {
     'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'
 }
 
 # chrome user data direction for selenium
