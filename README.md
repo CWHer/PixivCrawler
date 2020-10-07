@@ -20,6 +20,8 @@ graph TD;
 
 ~~如果遇到图只有半张的情况，大概是网不太好，~~现在确保size和response headers里的content-length一样大
 
+~~杂七杂八的写了一大堆，但又懒得简化...~~
+
 [TOC]
 
 ### 版本记录
@@ -90,6 +92,14 @@ graph TD;
 >
 > - [ ] 使用MCMF来获得最优匹配
 
+#### Ver 1.2
+
+> - 更新了一下浏览器的headers
+>
+> - 在win环境用cmd或者git bash运行时会出现“Exceeded 30 redirects.”
+>
+>   但在vscode的调试环境下则能正常运行.....我也不知道出了什么问题
+
 
 
 ### 部署方法
@@ -158,7 +168,7 @@ Windows限定，~~不保证在其它平台可以使用~~
    
 1. 获取cookies
 
-   使用`login.py`，运行Login().login()
+   使用`login.py`，运行Login().fetch()
 
    ```python
    from login import Login
