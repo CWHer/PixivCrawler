@@ -1,5 +1,7 @@
 # download artworks from ranking
 from settings import *
+from utils import ranking_selector
+import re
 import datetime
 import time
 import requests
@@ -42,7 +44,7 @@ class RankingCrawler():
             self.__nextday()
 
         while len(self.group) or len(pool):
-            time.sleep(0.05)
+            time.sleep(THREAD_DELAY)
             # send ranking_json to parallel pool
             while len(pool) < MAX_THREADS and len(self.group):
                 url = self.group.pop()

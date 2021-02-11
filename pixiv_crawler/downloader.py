@@ -24,7 +24,7 @@ class Downloader():
         pre_size = self.size
         print("---downloader start---")
         while (len(self.group) or len(pool)) and not flow_flag:
-            time.sleep(0.05)
+            time.sleep(THREAD_DELAY)
             if self.size != pre_size:
                 pre_size = self.size
                 print("***total flow used: " + str(self.size) + "MB***")

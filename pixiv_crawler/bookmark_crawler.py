@@ -1,5 +1,6 @@
 # download personal public bookmarks
 from settings import *
+from utils import page_selector
 import requests
 import re
 import sys
@@ -13,34 +14,40 @@ class BookmarkCrawler():
     #   </h1><span class="count-badge">3069.</span>
     # artworks sample:
     #   href="/artworks/83348083
+
+    # (out-dated) see def get_count & def collect for more
     # url sample:
     #   https://www.pixiv.net/bookmark.php?rest=show&p=1
     #   rest=show for public/ rest=hide for private
     #   note that 20 artworks per p
+
     # max number of downloads
     # flow capacity
     def __init__(self, cookie, maxnum=200, capacity=1024):
         self.num = maxnum
         self.cookie = cookie
-        self.url = "https://www.pixiv.net/bookmark.php?rest=show"
+        self.url = "https://www.pixiv.net/ajax/user/" + USER_ID + "/illusts"
         self.headers = BROWSER_HEADER
         self.collect_cnt = 0
         self.collector = Collector(cookie, capacity)
 
     # get count-badge
+    # https://www.pixiv.net/ajax/user/xxxx/illusts/bookmark/tags?lang=zh
     def get_count(self):
+        count_url = self.url + "/bookmark/tags?lang=zh"
         print("---start collecting bookmark count---")
 
         for i in range(FAIL_TIMES):
             try:
-                response = requests.get(self.url,
+                response = requests.get(count_url,
                                         headers=self.headers,
                                         proxies=PROXIES,
                                         cookies=self.cookie,
                                         timeout=4)
                 if response.status_code == 200:
-                    cnt = re.search('count-badge.*?(\d+)',
-                                    response.text).group(1)
+                    # cnt = re.search('count-badge.*?(\d+)',
+                    #                 response.text).group(1)
+                    cnt = response.json()['body']['public'][0]['cnt']
                     self.num = min(self.num, int(cnt))
                     print("total count: " + cnt)
                     print("download count: " + str(self.num))
@@ -61,18 +68,25 @@ class BookmarkCrawler():
         sys.exit(0)
 
     # collect bookmark
+    # https://www.pixiv.net/ajax/user/xxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
+    # [offset+1,offset+limit]
+    # note that disable artwork'id is num not str...
     def collect(self):
-        # note that 20 artworks per page
-        num = (self.num - 1) // 20 + 1
+        # default is 48, I just keep it.
+        limit = 48
+        num = (self.num - 1) // limit + 1
         pool = []
         print("---start collecting " + PIXIV_ID + "\'s bookmarks---")
         # store all pages' url in self.group
         self.group = set()
         for i in range(num):
-            self.group.add(self.url + '&p=' + str(i + 1))
+            url = self.url + "/bookmarks?tag="
+            url = url + "&offset=" + str(i * limit) + "&limit=" + str(limit)
+            url = url + "&rest=show&lang=zh"
+            self.group.add(url)
 
         while len(self.group) or len(pool):
-            time.sleep(0.05)
+            time.sleep(THREAD_DELAY)
             # send page to parallel pool
             while len(pool) < MAX_THREADS and len(self.group):
                 pool.append(
@@ -91,6 +105,7 @@ class BookmarkCrawler():
                 i += 1
 
         print("---collecting bookmark complete---")
+        print("downloadable artworks: " + str(len(self.collector.group)))
 
     def run(self):
         self.get_count()

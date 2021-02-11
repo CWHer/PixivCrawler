@@ -2,6 +2,7 @@
 # download image from url
 #   like https://i.pximg.net/img-original/img/2020/08/02/02/55/48/83383450_p0.jpg
 from settings import *
+from utils import write_fail_log
 import requests
 import threading
 import re

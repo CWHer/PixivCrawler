@@ -1,6 +1,7 @@
 # collect single user's all illustrations
 #   url sample: https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh
 from settings import *
+from utils import user_selector
 from collector import Collector
 from collector_unit import CollectorUnit
 

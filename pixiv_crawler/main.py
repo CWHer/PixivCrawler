@@ -1,4 +1,5 @@
 from settings import *
+from utils import checkfolder, load_cookie
 from login import Login
 from ranking_crawler import RankingCrawler
 from bookmark_crawler import BookmarkCrawler
@@ -20,6 +21,8 @@ checkfolder()
 # # 3nd parameter is flow capacity, default is 1024MB
 # app = BookmarkCrawler(load_cookie(), 40, 4096)
 # app.run()
+app = BookmarkCrawler(load_cookie(), 40000, 4096000)
+app.run()
 
 # download all artworks from a single artist
 # 2nd parameter is flow capacity, default is 1024MB

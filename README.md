@@ -28,77 +28,87 @@ graph TD;
 
 #### Ver 1.0
 
-> - 支持爬取排行榜和个人收藏
->
-> ​	其中每页收藏都支持多线程
->
-> ​	在收集图片信息和下载时也支持多线程
->
-> ​	但排行榜的每天不支持多线程
+- 支持爬取排行榜和个人收藏
+
+  其中每页收藏都支持多线程，在收集图片信息和下载时也支持多线程，​但排行榜的每天不支持多线程
 
 #### Ver 1.1
 
-> - 把一些通用函数并入了`settings.py`
->
-> - 把从json和page收集illust_id的模块整合到了collectunit，通过传入不同的selector来筛选不同的数据
->
-> ​	`page.py`和`image_group.py`现在通过传入`page_selector`和`image_group_selector`来实现
->
-> - 收藏与排行榜下载
->
-> ​	bookmark: 支持每页收藏并行，传入`page_selector`
->
-> ​	ranking: 支持每天的json并行，传入`ranking_selector`
->
-> - 移除了对下载数量的精确中断
->
-> ​	由于并行，无法精确中断
->
-> ​	以50 items/json为例，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
->
-> - 单个画师所有作品下载
->
-> - 标签selector，可以在`collector.py`选用`collect_tags()`
->
-> ​	启用后，在图片下载文件夹内生成一个`tags.json`记录每张作品的标签
->
-> - 马赛克拼图`mix.py`
->
-> ​	[原项目地址](https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py)，使用方法不完全一样
->
-> > `SLICE_SIZE`: 图片块大小
-> >
-> > `WIDTH,HEIGHT`: 输出图片大小
-> >
-> > `IN_DIR`: 未经过处理图片目录
-> >
-> > `OUT_DIR`: 处理后的图片库
-> >
-> > `DIFF_DIST`: 最大距离
-> >
-> > `REPEAT_TIMES`: 重复次数
-> >
-> > `FIRST_TIME`: 是否处理IN_DIR的图片，每次调整SLICE_SIZE后运行一次即可
-> >
-> > `image`: 需要拼接的图片的位置
->
-> ​	待优化:
->
-> - [x] 基于~~KD Tree~~优化邻近搜索
->
->   KD Tree查找写不来，写了BVH Tree
->
->   在3k图数据库情况下，搜索次数平均减少95%，运行时间平均减少30%
->
-> - [ ] 使用MCMF来获得最优匹配
+- 把一些通用函数并入了`settings.py`
+
+- 把从json和page收集illust_id的模块整合到了collectunit，通过传入不同的selector来筛选不同的数据
+
+  `page.py`和`image_group.py`现在通过传入`page_selector`和`image_group_selector`来实现
+
+- 收藏与排行榜下载
+
+  bookmark: 支持每页收藏并行，传入`page_selector`
+
+  ranking: 支持每天的json并行，传入`ranking_selector`
+
+- 移除了对下载数量的精确中断
+
+  由于并行，无法精确中断
+
+  以50 items/json为例，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
+
+- 单个画师所有作品下载
+
+- 标签selector，可以在`collector.py`选用`collect_tags()`
+
+  启用后，在图片下载文件夹内生成一个`tags.json`记录每张作品的标签
+
+- 马赛克拼图`mix.py`
+
+  [原项目地址](https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py)，使用方法不完全一样
+
+  > `SLICE_SIZE`: 图片块大小
+  >
+  > `WIDTH,HEIGHT`: 输出图片大小
+  >
+  > `IN_DIR`: 未经过处理图片目录
+  >
+  > `OUT_DIR`: 处理后的图片库
+  >
+  > `DIFF_DIST`: 最大距离
+  >
+  > `REPEAT_TIMES`: 重复次数
+  >
+  > `FIRST_TIME`: 是否处理IN_DIR的图片，每次调整SLICE_SIZE后运行一次即可
+  >
+  > `image`: 需要拼接的图片的位置
+
+  待优化:
+
+  - [x] 基于~~KD Tree~~优化邻近搜索
+
+    KD Tree查找写不来，写了BVH Tree
+
+    在3k图数据库情况下，搜索次数平均减少95%，运行时间平均减少30%
+
+  - [ ] 使用MCMF来获得最优匹配
 
 #### Ver 1.2
 
-> - 更新了一下浏览器的headers
->
-> - 在win环境用cmd或者git bash运行时会出现“Exceeded 30 redirects.”
->
->   但在vscode的调试环境下则能正常运行.....我也不知道出了什么问题
+- 更新了一下浏览器的headers
+
+- 在win环境用cmd或者git bash运行时会出现“Exceeded 30 redirects.”
+
+  但在vscode的调试环境下则能正常运行.....我也不知道出了什么问题
+
+#### Ver 1.3
+
+- 将`settings`里的函数移入`utils`
+
+- 更新抓取网页
+
+  bookmark的网页不知道为啥改了
+
+  https://www.pixiv.net/ajax/user/xxxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
+
+  更新了bookmark的抓取方法以保证正常使用
+
+- [ ] 保证其它功能正常
 
 
 
@@ -142,7 +152,7 @@ Windows限定，~~不保证在其它平台可以使用~~
    >
    > ```json
    > {
-   >  "name":"xxxx@xxx"
+   > "name":"xxxx@xxx"
    > }
    > ```
    >
@@ -151,6 +161,8 @@ Windows限定，~~不保证在其它平台可以使用~~
    > `DOWNLOAD_DELAY/FAIL_DELAY`: 下载/失败后延时
    >
    > `MAX_THREADS`: 最大并行线程数
+   >
+   > `THREAD_DELAY`: 启动线程间的延时
    >
    > `IMAGES_STORE_PATH`: 图片保存目录，相对路径
    >

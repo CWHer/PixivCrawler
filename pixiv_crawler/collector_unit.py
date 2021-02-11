@@ -2,6 +2,7 @@
 #   e.g.: user.json/page.json/rank.json
 #   use different selector to function accordingly
 from settings import *
+from utils import write_fail_log
 import time
 import threading
 import requests
