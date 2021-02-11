@@ -140,9 +140,13 @@ Windows限定，~~不保证在其它平台可以使用~~
 
    > 这里没提到的都不用改，带:warning:的务必修改
    >
+   > `MOST_OUTPUT`: 是否输出每张图片/每个网页抓取的具体情况
+   >
+   > `ALLOW_ERROR`: 是否输出捕获到的异常，如果配置完成建议选择False，可以略过网络波动的异常
+   >
    > `USER_ID`:warning:: 这里改成自己的uid，在profile页面的url里可以找到
    >
-   > `name`:warning::
+   > `PIXIV_ID`:warning::
    >
    > ​	在同目录下新建一个userdata.json，填入以下内容
    >
@@ -164,7 +168,7 @@ Windows限定，~~不保证在其它平台可以使用~~
    >
    > `THREAD_DELAY`: 启动线程间的延时
    >
-   > `IMAGES_STORE_PATH`: 图片保存目录，相对路径
+   > `IMAGES_STORE_PATH`:warning:: 图片保存目录，相对路径
    >
    > `START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
    >
@@ -282,7 +286,7 @@ Windows限定，~~不保证在其它平台可以使用~~
 
 - [x] tags
 
-- [ ] 优化输出内容
+- [x] 优化输出内容
 
 - [ ] 数据库构建
 

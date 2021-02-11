@@ -1,6 +1,6 @@
 # download personal public bookmarks
 from settings import *
-from utils import page_selector
+from utils import page_selector, print_bar
 import requests
 import re
 import sys
@@ -74,12 +74,13 @@ class BookmarkCrawler():
     def collect(self):
         # default is 48, I just keep it.
         limit = 48
-        num = (self.num - 1) // limit + 1
+        finish_count = 0
+        page_num = (self.num - 1) // limit + 1
         pool = []
         print("---start collecting " + PIXIV_ID + "\'s bookmarks---")
         # store all pages' url in self.group
         self.group = set()
-        for i in range(num):
+        for i in range(page_num):
             url = self.url + "/bookmarks?tag="
             url = url + "&offset=" + str(i * limit) + "&limit=" + str(limit)
             url = url + "&rest=show&lang=zh"
@@ -99,12 +100,16 @@ class BookmarkCrawler():
                 page = pool[i]
                 if not page.isAlive():
                     self.collector.add(page.group)
-                    print("--send page " + page.url + " to collector--")
                     pool.remove(page)
+                    if MOST_OUTPUT:
+                        print("--send page " + page.url + " to collector--")
+                    else:
+                        finish_count += 1
+                        print_bar(finish_count, page_num)
                     continue
                 i += 1
 
-        print("---collecting bookmark complete---")
+        print("\n---collecting bookmark complete---")
         print("downloadable artworks: " + str(len(self.collector.group)))
 
     def run(self):

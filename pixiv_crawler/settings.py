@@ -3,17 +3,20 @@ import json
 import sys
 import os
 
+# most / simplified output
+MOST_OUTPUT = False
+ALLOW_ERROR = False
+
 # user id
 # access your pixiv user profile to find this
 # it should be something like https://www.pixiv.net/users/xxxx
 # change following string into your id
 USER_ID = '22821761'
 
-# note that the name and password are required in 'userdata.json'
+# note that the name is required in 'userdata.json'
 # it should be something like
 # {
-#     "name": "xxx",
-#     "password": "xxx"
+#     "name": "xxx"
 # }
 PIXIV_ID = ""
 try:
@@ -35,13 +38,13 @@ DOWNLOAD_DELAY = 1
 # wait seconds between each fail
 FAIL_DELAY = 1
 # max parallel threads number
-MAX_THREADS = 12
+MAX_THREADS = 24
 # delay between start threads
 THREAD_DELAY = 0.05
 
 # image store path
 # only change name is OK, don't modify '\'
-IMAGES_STORE_PATH = 'user/'
+IMAGES_STORE_PATH = 'test/'
 
 # start date
 START_DATE = datetime.date(2021, 2, 1)

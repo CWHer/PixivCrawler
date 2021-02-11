@@ -1,7 +1,7 @@
 # collect Image() from illust_id (using ImageGroup)
 #   and send Image() to downloader
 from settings import *
-from utils import image_group_selector, tags_selector
+from utils import image_group_selector, tags_selector, print_bar
 from collector_unit import CollectorUnit
 from downloader import Downloader
 import re
@@ -29,6 +29,8 @@ class Collector():
         pool = []
         print('---tags collector start---')
 
+        total_num = len(self.group)
+        finish_count = 0
         while len(group) or len(pool):
             time.sleep(THREAD_DELAY)
             # send tags_collector to parallel pool
@@ -49,6 +51,8 @@ class Collector():
                                           tag_group.url).group(1)
                     self.tags[illust_id] = tag_group.group
                     pool.remove(tag_group)
+                    finish_count += 1
+                    print_bar(finish_count, total_num)
                     continue
                 i += 1
 
@@ -63,7 +67,8 @@ class Collector():
 
         pool = []
         print("---collector start---")
-
+        total_num = len(self.group)
+        finish_count = 0
         while len(self.group) or len(pool):
             time.sleep(THREAD_DELAY)
             # send json_collector to parallel pool
@@ -83,10 +88,12 @@ class Collector():
                 if not image_group.isAlive():
                     self.downloader.add(image_group.group)
                     pool.remove(image_group)
+                    finish_count += 1
+                    print_bar(finish_count, total_num)
                     continue
                 i += 1
 
-        print("---collector complete---")
+        print("\n---collector complete---")
         print("artworks: " + str(len(self.downloader.group)))
 
     # self.downloader.download()

@@ -22,7 +22,8 @@ class CollectorUnit(threading.Thread):
         self.group = set()
 
     def run(self):
-        print('---start collecting ' + self.url + '---')
+        if MOST_OUTPUT:
+            print('---start collecting ' + self.url + '---')
 
         time.sleep(DOWNLOAD_DELAY)
         for i in range(FAIL_TIMES):
@@ -34,18 +35,20 @@ class CollectorUnit(threading.Thread):
                                         timeout=4)
                 if response.status_code == 200:
                     self.group = self.selector(response)
-                    print('---collect ' + self.url + " complete---")
+                    if MOST_OUTPUT:
+                        print('---collect ' + self.url + " complete---")
                     return
 
             except Exception as e:
-                print(e)
-                print("check your proxy setting")
-                # print("maybe it was banned.")
-                print("This is " + str(i + 1) + " attempt to collect " +
-                      self.url)
-                print("next attempt will start in " + str(FAIL_DELAY) +
-                      " sec\n")
+                if ALLOW_ERROR:
+                    print(e)
+                    print("check your proxy setting")
+                    # print("maybe it was banned.")
+                    print("This is " + str(i + 1) + " attempt to collect " +
+                          self.url)
+                    print("next attempt will start in " + str(FAIL_DELAY) +
+                          " sec\n")
                 time.sleep(FAIL_DELAY)
-
-        print('---fail to collect ' + self.url + '---')
+        if ALLOW_ERROR:
+            print('---fail to collect ' + self.url + '---')
         write_fail_log('fail to collect ' + self.url + '\n')

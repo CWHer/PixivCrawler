@@ -4,6 +4,7 @@ import threading
 import os
 import requests
 import json
+import math
 from pyquery import PyQuery as pq
 
 # threadinglock used in write_fail_log
@@ -11,7 +12,7 @@ WRITE_FAIL_LOG_LOCK = threading.Lock()
 
 
 # append text in fail_log.txt
-def write_fail_log(text):
+def write_fail_log(text: str):
     WRITE_FAIL_LOG_LOCK.acquire()
     with open("fail_log.txt", "a+") as f:
         f.write(text)
@@ -33,6 +34,20 @@ def checkfolder():
     if not os.path.exists(IMAGES_STORE_PATH):
         os.makedirs(IMAGES_STORE_PATH)
         print("create " + IMAGES_STORE_PATH + " folder  ")
+
+
+# print progress bar
+def print_bar(cur: int, total: int, flow: float = None):
+    bar_size = math.floor(cur / total * 100)
+    if flow == None:
+        print("\r[{}{}] {}/{}".format("#" * bar_size, " " * (100 - bar_size),
+                                      cur, total),
+              end='')
+    else:
+        print("\r[{}{}] {}/{} flow used: {} MB".format("#" * bar_size,
+                                                       " " * (100 - bar_size),
+                                                       cur, total, flow),
+              end='')
 
 
 # ---selector begin---

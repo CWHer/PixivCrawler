@@ -26,11 +26,13 @@ class Image(threading.Thread):
 
     # download image
     def run(self):
-        print("---start downloading " + self.name + '---')
+        if MOST_OUTPUT:
+            print("---start downloading " + self.name + '---')
         time.sleep(2 / MAX_THREADS)
 
         if os.path.exists(IMAGES_STORE_PATH + self.name):
-            print(self.name + ' already exists')
+            if MOST_OUTPUT:
+                print(self.name + ' already exists')
             return
 
         time.sleep(DOWNLOAD_DELAY)
@@ -50,20 +52,23 @@ class Image(threading.Thread):
                         continue
                     with open(IMAGES_STORE_PATH + self.name, "wb") as f:
                         f.write(response.content)
-                    print("---download " + self.name + " successfully---")
+                    if MOST_OUTPUT:
+                        print("---download " + self.name + " successfully---")
                     self.size = int(
                         response.headers['content-length']) / 1024 / 1024
                     return
 
             except Exception as e:
-                print(e)
-                print("check your proxy setting")
-                # print("maybe it was banned.")
-                print("This is " + str(i + 1) + " attempt to download " +
-                      self.name)
-                print("next attempt will start in " + str(FAIL_DELAY) +
-                      " sec\n")
+                if ALLOW_ERROR:
+                    print(e)
+                    print("check your proxy setting")
+                    # print("maybe it was banned.")
+                    print("This is " + str(i + 1) + " attempt to download " +
+                          self.name)
+                    print("next attempt will start in " + str(FAIL_DELAY) +
+                          " sec\n")
                 time.sleep(FAIL_DELAY)
 
-        print("---fail to download " + self.name + '---')
+        if ALLOW_ERROR:
+            print("---fail to download " + self.name + '---')
         write_fail_log('fail to download ' + self.name + '\n')
