@@ -9,14 +9,16 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}"
         },
         {
             "name": "Python: external ",
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "externalTerminal"
+            "console": "externalTerminal",
+            "cwd": "${fileDirname}"
         }
     ]
 }
