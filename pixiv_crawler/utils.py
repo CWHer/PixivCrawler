@@ -44,9 +44,8 @@ def print_bar(cur: int, total: int, flow: float = None):
                                       cur, total),
               end='')
     else:
-        print("\r[{}{}] {}/{} flow used: {} MB".format("#" * bar_size,
-                                                       " " * (100 - bar_size),
-                                                       cur, total, flow),
+        print("\r[{}{}] {}/{}   flow used: {:>10.4f} MB".format(
+            "#" * bar_size, " " * (100 - bar_size), cur, total, flow),
               end='')
 
 
@@ -99,7 +98,7 @@ def user_selector(response):
 # url:https://www.pixiv.net/ajax/user/xxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
 # collect all artworks
 # return illust_id
-# note that disable artwork'id is num not str...
+# note that disable artwork's id is num not str...
 def page_selector(response):
     group = set()
     for artwork in response.json()['body']['works']:

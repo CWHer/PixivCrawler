@@ -21,7 +21,7 @@ checkfolder()
 # # 3nd parameter is flow capacity, default is 1024MB
 # app = BookmarkCrawler(load_cookie(), 40, 4096)
 # app.run()
-app = BookmarkCrawler(load_cookie(), 40, 4096000)
+app = BookmarkCrawler(load_cookie(), 4000, 40000)
 app.run()
 
 # download all artworks from a single artist

@@ -5,6 +5,7 @@ import requests
 import re
 import sys
 import time
+from parallelpool import ParallelPool
 from collector import Collector
 from collector_unit import CollectorUnit
 
@@ -74,9 +75,8 @@ class BookmarkCrawler():
     def collect(self):
         # default is 48, I just keep it.
         limit = 48
-        finish_count = 0
         page_num = (self.num - 1) // limit + 1
-        pool = []
+        pool = ParallelPool(page_num)
         print("---start collecting " + PIXIV_ID + "\'s bookmarks---")
         # store all pages' url in self.group
         self.group = set()
@@ -86,28 +86,23 @@ class BookmarkCrawler():
             url = url + "&rest=show&lang=zh"
             self.group.add(url)
 
-        while len(self.group) or len(pool):
+        while len(self.group) or not pool.empty():
             time.sleep(THREAD_DELAY)
             # send page to parallel pool
-            while len(pool) < MAX_THREADS and len(self.group):
-                pool.append(
+            while not pool.full() and len(self.group):
+                pool.add(
                     CollectorUnit(self.group.pop(), self.cookie,
                                   page_selector))
-                pool[-1].start()
             # remove complete thread
-            i = 0
-            while i < len(pool):
-                page = pool[i]
-                if not page.isAlive():
+            finished = pool.finished_item()
+            while True:
+                try:
+                    page = next(finished)
                     self.collector.add(page.group)
-                    pool.remove(page)
                     if MOST_OUTPUT:
                         print("--send page " + page.url + " to collector--")
-                    else:
-                        finish_count += 1
-                        print_bar(finish_count, page_num)
-                    continue
-                i += 1
+                except StopIteration:
+                    break
 
         print("\n---collecting bookmark complete---")
         print("downloadable artworks: " + str(len(self.collector.group)))

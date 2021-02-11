@@ -4,6 +4,7 @@ from settings import *
 from utils import image_group_selector, tags_selector, print_bar
 from collector_unit import CollectorUnit
 from downloader import Downloader
+from parallelpool import ParallelPool
 import re
 import time
 
@@ -26,72 +27,60 @@ class Collector():
         self.tags = dict()
         # a copy of self.group
         group = self.group.copy()
-        pool = []
+        pool = ParallelPool(len(group))
         print('---tags collector start---')
-
-        total_num = len(self.group)
-        finish_count = 0
-        while len(group) or len(pool):
+        while len(group) or not pool.empty():
             time.sleep(THREAD_DELAY)
             # send tags_collector to parallel pool
-            while len(pool) < MAX_THREADS and len(group):
+            while not pool.full() and len(group):
                 illust_id = group.pop()
                 ref = 'https://www.pixiv.net/bookmark.php?type=user'
                 url = 'https://www.pixiv.net/artworks/' + illust_id
                 headers = {'Referer': ref}
-                pool.append(
+                pool.add(
                     CollectorUnit(url, self.cookie, tags_selector, headers))
-                pool[-1].start()
             # remove complete thread
-            i = 0
-            while i < len(pool):
-                tag_group = pool[i]
-                if not tag_group.isAlive():
+            finished = pool.finished_item()
+            while True:
+                try:
+                    tag_group = next(finished)
                     illust_id = re.search('artworks/(\d+)',
                                           tag_group.url).group(1)
                     self.tags[illust_id] = tag_group.group
-                    pool.remove(tag_group)
-                    finish_count += 1
-                    print_bar(finish_count, total_num)
-                    continue
-                i += 1
+                except StopIteration:
+                    break
 
         with open(IMAGES_STORE_PATH + 'tags.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.tags, indent=4, ensure_ascii=False))
-        print('---tags collector complete---')
+        print('\n---tags collector complete---')
 
     # collect image from self.group
     #   and send to self.downloader
     def collect(self):
-        # self.collect_tags()
+        if WITH_TAG:
+            self.collect_tags()
 
-        pool = []
+        pool = ParallelPool(len(self.group))
         print("---collector start---")
-        total_num = len(self.group)
-        finish_count = 0
-        while len(self.group) or len(pool):
+        while len(self.group) or not pool.empty():
             time.sleep(THREAD_DELAY)
             # send json_collector to parallel pool
-            while len(pool) < MAX_THREADS and len(self.group):
+            while not pool.full() and len(self.group):
                 illust_id = self.group.pop()
                 ref = 'https://www.pixiv.net/artworks/' + illust_id
                 url = 'https://www.pixiv.net/ajax/illust/' + illust_id + '/pages?lang=zh'
                 headers = {'Referer': ref, "x-user-id": USER_ID}
-                pool.append(
+                pool.add(
                     CollectorUnit(url, self.cookie, image_group_selector,
                                   headers))
-                pool[-1].start()
             # remove complete thread
-            i = 0
-            while i < len(pool):
-                image_group = pool[i]
-                if not image_group.isAlive():
+            finished = pool.finished_item()
+            while True:
+                try:
+                    image_group = next(finished)
                     self.downloader.add(image_group.group)
-                    pool.remove(image_group)
-                    finish_count += 1
-                    print_bar(finish_count, total_num)
-                    continue
-                i += 1
+                except StopIteration:
+                    break
 
         print("\n---collector complete---")
         print("artworks: " + str(len(self.downloader.group)))

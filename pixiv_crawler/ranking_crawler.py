@@ -7,6 +7,7 @@ import time
 import requests
 from collector import Collector
 from collector_unit import CollectorUnit
+from parallelpool import ParallelPool
 
 
 class RankingCrawler():
@@ -29,47 +30,39 @@ class RankingCrawler():
     def collect(self):
         # note that 50 artworks per p=x
         page_num = (ARTWORKS_PER - 1) // 50 + 1  #ceil
-        pool = []
         print("---start collecting " + self.mode + " ranking---")
         print("start with " + self.date.strftime("%Y-%m-%d"))
         print("end with " + (self.date + datetime.timedelta(
             days=self.domain - 1)).strftime("%Y-%m-%d" + '\n'))
         # store all jsons' url in self.group
         self.group = set()
-        for i in range(DOMAIN):
+        for _i in range(DOMAIN):
             for j in range(page_num):
                 self.group.add(self.url + '&date=' +
                                self.date.strftime("%Y%m%d") + '&p=' +
                                str(j + 1) + '&format=json')
             self.__nextday()
-
-        total_num = len(self.group)
-        finish_count = 0
-        while len(self.group) or len(pool):
+        pool = ParallelPool(len(self.group))
+        while len(self.group) or not pool.empty():
             time.sleep(THREAD_DELAY)
             # send ranking_json to parallel pool
-            while len(pool) < MAX_THREADS and len(self.group):
+            while not pool.full() and len(self.group):
                 url = self.group.pop()
                 ref = re.search('(.*)&p', url).group(1)
                 headers = self.headers.update({'Referer': ref})
-                pool.append(
+                pool.add(
                     CollectorUnit(url, self.cookie, ranking_selector, headers))
-                pool[-1].start()
             # remove complete thread
-            i = 0
-            while i < len(pool):
-                ranking_json = pool[i]
-                if not ranking_json.isAlive():
+            finished = pool.finished_item()
+            while True:
+                try:
+                    ranking_json = next(finished)
                     self.collector.add(ranking_json.group)
                     if MOST_OUTPUT:
                         print("--send page " + ranking_json.url +
                               " to collector--")
-                    else:
-                        finish_count += 1
-                        print_bar(finish_count, total_num)
-                    pool.remove(ranking_json)
-                    continue
-                i += 1
+                except StopIteration:
+                    break
 
         print("\n---collect " + self.mode + " ranking complete---")
 

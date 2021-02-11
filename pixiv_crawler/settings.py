@@ -6,6 +6,7 @@ import os
 # most / simplified output
 MOST_OUTPUT = False
 ALLOW_ERROR = False
+WITH_TAG = False
 
 # user id
 # access your pixiv user profile to find this
@@ -40,11 +41,11 @@ FAIL_DELAY = 1
 # max parallel threads number
 MAX_THREADS = 24
 # delay between start threads
-THREAD_DELAY = 0.05
+THREAD_DELAY = 0.2
 
 # image store path
 # only change name is OK, don't modify '\'
-IMAGES_STORE_PATH = 'test/'
+IMAGES_STORE_PATH = 'images/'
 
 # start date
 START_DATE = datetime.date(2021, 2, 1)
