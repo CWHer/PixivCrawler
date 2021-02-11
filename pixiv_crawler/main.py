@@ -1,4 +1,3 @@
-from settings import *
 from utils import checkfolder, load_cookie
 from login import Login
 from ranking_crawler import RankingCrawler

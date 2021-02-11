@@ -1,7 +1,7 @@
 # download controller
 # Image --> downloader (queue) --> download
 #   multiple thread downloader
-from settings import *
+from settings import THREAD_DELAY
 from utils import print_bar
 from image import Image
 from parallelpool import ParallelPool

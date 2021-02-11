@@ -38,14 +38,16 @@ def checkfolder():
 
 # print progress bar
 def print_bar(cur: int, total: int, flow: float = None):
-    bar_size = math.floor(cur / total * 100)
+    bar_width = 50
+    bar_size = math.floor(cur / total * bar_width)
     if flow == None:
-        print("\r[{}{}] {}/{}".format("#" * bar_size, " " * (100 - bar_size),
-                                      cur, total),
+        print("\r[{}{}] {}/{}".format("#" * bar_size,
+                                      " " * (bar_width - bar_size), cur,
+                                      total),
               end='')
     else:
         print("\r[{}{}] {}/{}   flow used: {:>10.4f} MB".format(
-            "#" * bar_size, " " * (100 - bar_size), cur, total, flow),
+            "#" * bar_size, " " * (bar_width - bar_size), cur, total, flow),
               end='')
 
 

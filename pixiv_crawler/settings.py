@@ -41,7 +41,7 @@ FAIL_DELAY = 1
 # max parallel threads number
 MAX_THREADS = 24
 # delay between start threads
-THREAD_DELAY = 0.2
+THREAD_DELAY = 0.1
 
 # image store path
 # only change name is OK, don't modify '\'

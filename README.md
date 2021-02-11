@@ -2,6 +2,10 @@
 
 一个pixiv的爬虫
 
+正常运行输出大概是这样
+
+![](/imgs/run.png)
+
 模块化程度高，耦合度低
 
 例如有url的话可以考虑直接传入downloader这个多线程下载器（比如配合[Pxer](https://github.com/FoXZilla/Pxer)使用）
@@ -154,7 +158,7 @@ Windows限定，~~不保证在其它平台可以使用~~
    >
    > `USER_ID`:warning:: 这里改成自己的uid，在profile页面的url里可以找到
    >
-   > `PIXIV_ID`:warning::
+   > `PIXIV_ID`: ~~不起作用，可以任意填写~~
    >
    > ​	在同目录下新建一个userdata.json，填入以下内容
    >
