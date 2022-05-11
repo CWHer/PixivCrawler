@@ -34,7 +34,7 @@ class Collector():
         self.tags: Dict[str, List] = dict()
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
-            with tqdm(total=len(self.id_group), desc="collecting") as pbar:
+            with tqdm(total=len(self.id_group), desc="collecting tags") as pbar:
                 urls = [f"https://www.pixiv.net/artworks/{illust_id}"
                         for illust_id in self.id_group]
                 additional_headers = {
@@ -65,7 +65,7 @@ class Collector():
 
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
-            with tqdm(total=len(self.id_group), desc="collecting") as pbar:
+            with tqdm(total=len(self.id_group), desc="collecting urls") as pbar:
                 urls = [f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=zh"
                         for illust_id in self.id_group]
                 additional_headers = [
