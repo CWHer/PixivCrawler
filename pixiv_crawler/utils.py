@@ -1,114 +1,52 @@
-from settings import IMAGES_STORE_PATH
-import re
-import threading
 import os
-import requests
-import json
-import math
-from pyquery import PyQuery as pq
-
-# threadinglock used in write_fail_log
-WRITE_FAIL_LOG_LOCK = threading.Lock()
+from functools import wraps
+from threading import Lock
 
 
-# append text in fail_log.txt
-def write_fail_log(text: str):
-    WRITE_FAIL_LOG_LOCK.acquire()
-    with open("fail_log.txt", "a+") as f:
-        f.write(text)
-    WRITE_FAIL_LOG_LOCK.release()
+# >>> log utils
+# output mutex lock
+log_lock = Lock()
 
 
-# load cookies from cookies.json
-def load_cookie():
-    ret = requests.cookies.RequestsCookieJar()
-    with open("cookies.json", "r") as f:
-        cookies = json.load(f)
-        for cookie in cookies:
-            ret.set(cookie['name'], cookie['value'])
-    return ret
+def writeFailLog(text: str):
+    """[summary]
+    append text in fail_log.txt
+    """
+    with log_lock:
+        with open("fail_log.txt", "a+") as f:
+            f.write(text)
 
 
-# create folder
-def checkfolder():
-    if not os.path.exists(IMAGES_STORE_PATH):
-        os.makedirs(IMAGES_STORE_PATH)
-        print("create " + IMAGES_STORE_PATH + " folder  ")
+def timeLog(func):
+    @wraps(func)
+    def clocked(*args, **kwargs):
+        from time import time
+        start_time = time()
+        ret = func(*args, **kwargs)
+        print("{}() finishes after {:.2f} s".format(
+            func.__name__, time() - start_time))
+        return ret
+    return clocked
 
 
-# print progress bar
-def print_bar(cur: int, total: int, flow: float = None):
-    bar_width = 50
-    bar_size = math.floor(cur / total * bar_width)
-    if flow == None:
-        print("\r[{}{}] {}/{}".format("#" * bar_size,
-                                      " " * (bar_width - bar_size), cur,
-                                      total),
-              end='')
-    else:
-        print("\r[{}{}] {}/{}   flow used: {:>10.4f} MB".format(
-            "#" * bar_size, " " * (bar_width - bar_size), cur, total, flow),
-              end='')
+def printInfo(msg):
+    print("[INFO]: {}".format(msg))
 
 
-# ---selector begin---
-# url:https://www.pixiv.net/ajax/illust/xxxx/pages?lang=zh
-# collect all images' url from (page.json)
-# return url
-def image_group_selector(response):
-    group = set()
-    for url in response.json()['body']:
-        group.add(url['urls']['original'])
-    return group
+def printWarn(expr: bool, msg):
+    if expr:
+        print("[WARN]: {}".format(msg))
 
 
-# url:https://www.pixiv.net/artworks/xxxxxx
-# collect image tags
-# return a list of tags
-def tags_selector(response):
-    group = []
-    doc = pq(response.text)
-    illust_id = re.search('artworks/(\d+)', response.url).group(1)
-    content = json.loads(doc('#meta-preload-data').attr('content'))
-    tags = content['illust'][illust_id]['tags']['tags']
-    for tag in tags:
-        translation = tag.get('translation')
-        if translation == None:
-            group.append(tag['tag'])
-        else:
-            group.append(translation['en'])
-    return group
+def printError(expr: bool, msg):
+    if expr:
+        print("[ERROR]: {}".format(msg))
+        raise RuntimeError()
+
+# <<< log utils
 
 
-# url:https://www.pixiv.net/ranking.php?mode=daily&date=20200801&p=1&format=json
-# collect all illust_id from (ranking.json)
-# return illust_id
-def ranking_selector(response):
-    group = set()
-    for artwork in response.json()['contents']:
-        group.add(str(artwork['illust_id']))
-    return group
-
-
-# url:https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh
-# collect all illust_id from (user.json)
-# return illust_id
-def user_selector(response):
-    return set(response.json()['body']['illusts'].keys())
-
-
-# url:https://www.pixiv.net/ajax/user/xxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
-# collect all artworks
-# return illust_id
-# note that disable artwork's id is num not str...
-def page_selector(response):
-    group = set()
-    for artwork in response.json()['body']['works']:
-        if isinstance(artwork['id'], str):
-            group.add(artwork['id'])
-        else:
-            write_fail_log('disable artwork ' + str(artwork['id']) + '\n')
-    return group
-
-
-# ---selector end---
+def checkDir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+        printInfo(f"create {dir_path}")
