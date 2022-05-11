@@ -68,7 +68,7 @@ def selectUser(response: Response) -> Set[str]:
 def selectBookmark(response: Response) -> Set[str]:
     """[summary]
     url: https://www.pixiv.net/ajax/user/xxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
-    collect all illust_id (image_id) from (bookmarks.json)
+    collect all illust_id (image_id) from (bookmark.json)
 
     Returns:
         Set[str]: illust_id (image_id)
@@ -81,4 +81,20 @@ def selectBookmark(response: Response) -> Set[str]:
             id_group.add(artwork["id"])
         else:
             writeFailLog(f"disable artwork {illust_id} \n")
+    return id_group
+
+
+def selectKeyword(response: Response) -> Set[str]:
+    """[summary]
+    url: https://www.pixiv.net/ajax/search/artworks/{xxxxx}?word={xxxxx}&order=popular_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=zh"
+    collect all illust_id (image_id) from (keyword.json)
+
+    Returns:
+        Set[str]: illust_id (image_id)
+    """
+    # NOTE: id of disable artwork is int (not str)
+    id_group: Set[str] = set()
+    for artwork in response.json()[
+            "body"]["illustManga"]["data"]:
+        id_group.add(artwork["id"])
     return id_group
