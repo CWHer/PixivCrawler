@@ -57,7 +57,7 @@ class ImageLib():
         if height is None:
             height = width
         return ImageOps.fit(
-            Image.open(im_path),
+            Image.open(im_path).convert("RGB"),
             (width, height), Image.Resampling.LANCZOS)
 
     @staticmethod
