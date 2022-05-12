@@ -46,4 +46,4 @@ def collect(args: Tuple[str, Callable, Optional[Dict]]) \
             time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
 
     printWarn(error_output, f"fail to collect {url}")
-    writeFailLog(f"fail to collect {url}")
+    writeFailLog(f"fail to collect {url} \n")
