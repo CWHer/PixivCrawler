@@ -7,6 +7,10 @@ fail_log.txt
 # image save path
 images/
 
+# image mix
+image_lib/
+result.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
