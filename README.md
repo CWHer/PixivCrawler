@@ -1,444 +1,188 @@
-# Pixiv crawler
+# Pixiv Crawler
 
-一个pixiv的爬虫
+![](https://img.shields.io/badge/python-3.9.6-green) ![](https://img.shields.io/badge/latest%20update-2022%2F5%2F12-green)
 
-正常运行输出大概是这样
+一个使用`Python`实现的`Pixiv`爬虫
 
-![](/imgs/run.png)
+## Main Features
 
-模块化程度高，耦合度低
+运行时输出参考下图（2x faster）
 
-例如有url的话可以考虑直接传入downloader这个多线程下载器（比如配合[Pxer](https://github.com/FoXZilla/Pxer)使用）
+![](/assets/run.gif)
+
+**支持功能**
+
+- 每日/月/年的不同排行榜
+
+- 个人收藏
+
+- 特定画师的作品
+
+- 特定关键词的作品
+
+- 马赛克拼图（`image_mix`)
+
+  ![](./assets/mixture.png)
+
+**设计思路**
+
+- Notations
+
+  - `artwork_id`: "93172108"
+
+  - `artwork_url`: https://www.pixiv.net/artworks/93172108
+
+    每个`artwork`可能包含多张图片
+
+  - `image_url`: "https://i.pximg.net/img-original/img/2021/10/02/18/47/29/93172108_p1.jpg"
+
+- 采用流水线设计
+
+  不同阶段分别收集`artwork url`, `image url`，并传入下一阶段使用
+
+- 模块化程度高，耦合度低
+
+  例如已有`image url`（e.g., 配合[Pxer](https://github.com/FoXZilla/Pxer)使用），则可以考虑直接传入`downloader`下载
 
 ```mermaid
-graph TD;
+graph LR;
 	F[start]-->A;
-	A[crawler]--send illust_id-->B[collector];
-	B==run parallelly==>C(collector_unit);
+	A<==run parallelly==>A;
+	A[crawler]--send artwork_url-->B[collector];
+	B<==run parallelly==>B;
 	B--send image url-->D[downloader];
-	D==run parallelly==>G(image.download);
+	D==run parallelly==>D;
 	D-->E[end];
 ```
 
-本来以为爬太快会被暂时ban ip，然后发现好像不需要顾虑这个，~~可以选择性忽略ip was banned的提示~~
 
-~~如果遇到图只有半张的情况，大概是网不太好，~~现在确保size和response headers里的content-length一样大
 
-~~杂七杂八的写了一大堆，但又懒得简化...~~
+## 目录结构
 
-[TOC]
+- `./image_mix`：马赛克拼图
 
-### 版本记录
+- `./pixiv_crawler`：`Pixiv`爬虫
 
-#### Ver 1.0
+- `./templates`
 
-- 支持爬取排行榜和个人收藏
+    `Pixiv`网站部分`json`, `html`的样例
+    
+    说明见`./pixiv_crawler/collector/selectors.py`
+    
+    
 
-  其中每页收藏都支持多线程，在收集图片信息和下载时也支持多线程，​但排行榜的每天不支持多线程
 
-#### Ver 1.1
+## 如何使用
 
-- 把一些通用函数并入了`settings.py`
+:warning: <u>此处仅含爬虫的使用教程</u>，马赛克拼图使用教程见`./image_mix/README.md`
 
-- 把从json和page收集illust_id的模块整合到了collectunit，通过传入不同的selector来筛选不同的数据
+### 1. 安装Python及其依赖库
 
-  `page.py`和`image_group.py`现在通过传入`page_selector`和`image_group_selector`来实现
+- `Python >= 3.9`
+- `pip install requirements.txt -r `
 
-- 收藏与排行榜下载
+### 2. 修改配置文件
 
-  bookmark: 支持每页收藏并行，传入`page_selector`
+配置文件为`./pixiv_crawler/config.py`，含:warning:项必须修改
 
-  ranking: 支持每天的json并行，传入`ranking_selector`
+- `MODE_CONFIG`部分
 
-- 移除了对下载数量的精确中断
+  <u>该设置仅适用于抓取排行榜图片</u>
 
-  由于并行，无法精确中断
+  - `START_DATE`: 排行榜开始日期 :warning:
+  - `RANGE`: 日期范围 :warning:
+  - `MODE`: 哪个类型的排行榜（参考文件中`RANKING_MODES`） :warning:
+  - `N_ARTWORK`: 排行榜前`k`幅作品 :warning:
 
-  以50 items/json为例，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
+- `OUTPUT_CONFIG`部分
 
-- 单个画师所有作品下载
+  该设置用于控制输出信息程度，可用于调试
 
-- 标签selector，可以在`collector.py`选用`collect_tags()`
+  - `VERBOSE`: 输出最多的信息（不建议开启）
+  - `PRINT_ERROR`: 输出遇到异常的类型（可用于调试，偶尔`TimeOut`属于正常情况）
 
-  启用后，在图片下载文件夹内生成一个`tags.json`记录每张作品的标签
+- `NETWORK_CONFIG`部分
 
-- 马赛克拼图`mix.py`
+  - `PROXY`: 代理设置（`Clash`无需修改，`SSR`需要修改端口号） :warning:
+  - `HEADER`: 基础请求头，目前仅含浏览器头
 
-  [原项目地址](https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py)，使用方法不完全一样
+- `USER_CONFIG`部分
 
-  > `SLICE_SIZE`: 图片块大小
-  >
-  > `WIDTH,HEIGHT`: 输出图片大小
-  >
-  > `IN_DIR`: 未经过处理图片目录
-  >
-  > `OUT_DIR`: 处理后的图片库
-  >
-  > `DIFF_DIST`: 最大距离
-  >
-  > `REPEAT_TIMES`: 重复次数
-  >
-  > `FIRST_TIME`: 是否处理IN_DIR的图片，每次调整SLICE_SIZE后运行一次即可
-  >
-  > `image`: 需要拼接的图片的位置
+  - `USER_ID`: 修改成自己的`uid`，参考个人资料页面的网址`https://www.pixiv.net/users/{UID}` :warning:
 
-  待优化:
+  - `COOKIE`: 配置种最关键的一项 :warning::warning::warning:
 
-  - [x] 基于~~KD Tree~~优化邻近搜索
+    1. 打开浏览器的`DevTools`（一般为F12），切换到`Network`栏
 
-    KD Tree查找写不来，写了BVH Tree
+    2. 访问排行榜并刷新页面，在`DevTools`中找到`ranking.php`
 
-    在3k图数据库情况下，搜索次数平均减少95%，运行时间平均减少30%
+       ![](./assets/cookie.png)
 
-  - [ ] 使用MCMF来获得最优匹配
+       将`cookie:`后面所有的字符（最大的红框所示）复制到配置的`COOKIE`中 :warning:
 
-#### Ver 1.2
+- `DOWNLOAD_CONFIG`部分
 
-- 更新了一下浏览器的headers
+  - `STORE_PATH`: 图片保存位置
+  - `N_TIMES`: 下载失败后的重复请求次数
+  - `WITH_TAG`: 是否需要抓取标签
+  - `FAIL_DELAY`: 下载失败后延时（秒）
+  - `N_THREAD`: 并行下载的线程数量（根据CPU核数调整） :warning:
+  - `THREAD_DELAY`: 每个线程启动的延时（秒）
 
-- 在win环境用cmd或者git bash运行时会出现“Exceeded 30 redirects.”
+### 3. 修改主程序
 
-  但在vscode的调试环境下则能正常运行.....我也不知道出了什么问题
+参考`./pixiv_crawler/main.py`中注释代码
 
-#### Ver 1.3
+`capacity`参数用于限制下载流量
 
-- 将`settings`里的函数移入`utils`
+- 下载排行榜作品
 
-- 更新抓取网页
+  正确配置`MODE_CONFIG`，修改主程序
 
-  bookmark的网页不知道为啥改了
+  ```python
+  app = RankingCrawler(capacity=200)
+  app.run()
+  ```
 
-  https://www.pixiv.net/ajax/user/xxxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
+- 下载个人公开收藏作品
 
-  更新了bookmark的抓取方法以保证正常使用
+  正确配置`USER_CONFIG`，修改主程序
 
-- [x] 保证其它功能正常
+  `n_images`参数用于限制最大下载数量
 
-- [x] 优化了输出内容
+  ```python
+  app = BookmarkCrawler(n_images=20, capacity=200)
+  app.run()
+  ```
 
-- [x] 将并行池放入了一个新的模块
+- 下载某位画师的作品
 
-  简易并行池，不停地加入新的和取出已经完成的
+  `artist_id`参数为画师的`uid`
 
+  ```python
+  app = UserCrawler(artist_id="32548944", capacity=200)
+  app.run()
+  ```
 
+- 下载某个关键词的作品
 
-### 部署方法
-
-Windows限定，~~不保证在其它平台可以使用~~
-
-#### 1.安装依赖库
-
-总之少哪个装哪个
-
-- request
-
-  `pip install requests`
-
-- selenium
-
-  `pip install selenium`
-
-- chrome driver
-
-  下载地址[Link](http://npm.taobao.org/mirrors/chromedriver/)，下载chrome对应的版本
-
-  在windows环境建议直接把chromedriver.exe放入python的scripts目录
-
-#### 2.运行
-
-0. `settings.py`的设置
-
-   > 这里没提到的都不用改，带:warning:的务必修改
-   >
-   > `MOST_OUTPUT`: 是否输出每张图片/每个网页抓取的具体情况
-   >
-   > `ALLOW_ERROR`: 是否输出捕获到的异常，如果配置完成建议选择False，可以略过网络波动的异常
-   >
-   > `WITH_TAG`: 是否需要抓取标签
-   >
-   > `USER_ID`:warning:: 这里改成自己的uid，在profile页面的url里可以找到
-   >
-   > `PIXIV_ID`: ~~不起作用，可以任意填写~~
-   >
-   > ​	在同目录下新建一个userdata.json，填入以下内容
-   >
-   > ​	这里的name填入自己的账号，应该是邮箱什么的
-   >
-   > ​	运行时载入成功会有'load userdata.json successfully!'反馈
-   >
-   > ```json
-   > {
-   > "name":"xxxx@xxx"
-   > }
-   > ```
-   >
-   > `FAIL_TIMES`: 失败后尝试请求次数
-   >
-   > `DOWNLOAD_DELAY/FAIL_DELAY`: 下载/失败后延时
-   >
-   > `MAX_THREADS`: 最大并行线程数
-   >
-   > `THREAD_DELAY`: 启动线程间的延时
-   >
-   > `IMAGES_STORE_PATH`:warning:: 图片保存目录，相对路径
-   >
-   > `START_DATE/DOMAIN`:warning:: 抓取排行榜开始日期与范围
-   >
-   > `PIXIV_MODE`:warning:: 设置排行榜类型
-   >
-   > `ARTWORKS_PER`:warning:: 榜的前x幅作品
-   >
-   > `PROXIES`:warning:: 填入自己的proxy设置，ss/ssr默认设置的话无需改动​ 
-   >
-   > `USER_DATA_DIR`:warning:: chrome个人配置的目录，用于login时调整chrome设置
-   >
-   > ​	一般来说是'C:\\Users\\xxxxx\\AppData\\Local\\Google\\Chrome\\User Data'
-   
-1. 获取cookies
+  **注**：按照热门度排序，需要`premium`账户
 
-   使用`login.py`，运行Login().fetch()
+  正确配置`USER_CONFIG`，修改主程序
 
-   ```python
-   from login import Login
-   Login().fetch()
-   ```
+  `keyword`参数为关键词
 
-   运行一次即可，保存在cookie.json
+  `n_images`参数用于限制最大下载数量
 
-   务必先阅读注意事项1-4
+  ```python
+  app = KeywordCrawler(keyword="女の子", n_images=50, capacity=2000)
+  app.run()
+  ```
 
-2. 排行榜/个人收藏/画师作品的抓取
+### 4. 运行
 
-   见当前的`main.py`，需要提前配置好`settings.py`
-   
-   `ranking`
-   
-   ​	需要在`settings.py`中设置模式/日期/范围/每天下载数量
-   
-   ​	第二个参数为流量限制
-   
-   ```
-   app = RankingCrawler(load_cookie(), 200)
-   app.run()
-   ```
-   
-   `bookmark`
-   
-   ​	需要在`settings.py`中设置好个人id
-   
-   ​	下载当前登录用户的公开个人收藏
-   
-   ​	第二个参数为数量限制，第三个参数为流量限制
-   
-   ```
-   app = BookmarkCrawler(load_cookie(), 40, 4096)
-   app.run()
-   ```
-   
-   `user`
-   
-   ​	下载指定画师的所有作品
-   
-   ​	第一个参数为画师id，第三个参数为流量限制
-   
-   ```
-   app = UserCrawler('23945843', load_cookie(), 200)
-   app.run()
-   ```
-   
-   
+`python main.py`
 
-#### 3.注意事项:warning::warning::warning:
+### 5. 注意事项 :warning:
 
-1. 确保chrome已经登录pixiv.net
-
-   login模块使用selenium模拟chrome抓取cookies，会有弹窗
-
-2. 在运行login模块时需要关闭所有chrome窗口
-
-3. 需要手动检查cookies.json是否为空
-
-   selenium模块处理状态码比较困难
-
-   没有很好的办法判断网页是请求成功，还是无法访问，而且这里不会报错
-
-4. cookies的过期时间很长
-
-   基本上几天内用同一个cookie不会有大问题，等过期了再次抓取即可
-
-### 基本功能
-
-- [x] ~~模拟登录~~
-
-  使用selenium抓取已登录的cookies
-
-- [x] cookies
-
-- [x] 爬取pixiv第一张图片
-
-- [ ] proxy池
-
-- [x] 多图 image_group
-
-- [x] 排行榜 ranking_crawler
-
-- [x] 个人收藏
-
-- [x] fail log
-
-- [ ] 个人关注
-
-- [x] 某个画师作品
-
-- [ ] ~~标签搜索~~（disallow in robots.txt）
-
-- [x] 多线程
-
-- [x] 流量控制
-
-- [x] tags
-
-- [x] 优化输出内容
-
-- [ ] 数据库构建
-
-- [ ] cookies池
-
-
-
-### 主要模块
-
-#### 基础类
-
-- selector function
-
-> 用法见注释
->
-> `image_group_selector`
->
-> `tags_selector`
->
-> `ranking_selector`
->
-> `user_selector`
->
-> `page_selector`
-
-- json sample
-
-> `rank.json`:  ranking
->
-> ​	request ".../ranking.php?p=1&format=json"
->
-> `page.json`: used in image_group.py
->
-> ​	from ".../artworks/xxxx"
->
-> ​	request "..../ajax/illust/xxxx"
->
-> `user.json`:
->
-> ​	from "..../users/xxxx/illustrations"
->
-> ​	request "...../ajax/user/xxxxx/profile/all?lang=zh"
-
-- `settings.json`: 所有设置都在这里，见**部署方法**
-
-- `login.py`:
-
-​	无需传入参数 
-
-​	使用selenium抓取已登录的cookies并保存在cookies.json
-
-#### 图片收集/下载
-
-- `image.py`: 
-
-​	传入类似"xxxx://i.pximg.net/img-original/img/xxxxx/xxxxxx_p0.jpg"的url
-
-​	图片类，提供下载方法，可以多线程执行
-
-- `downloader.py`
-
-​	下载器，可以多线程调度Image类
-
-- `collector_unit.py`: 
-
-​	一个通用的收集器单元，通过传入不同的selector来筛选数据
-
-- `collector.py`
-
-​	收集器，可以多线程调度ImageGroup类
-
-#### 各种类型的爬虫
-
-- `ranking_crawler.py`
-
-​	需要传入cookie和capacity=1024
-
-​	其中capacity为流量限制，默认1024MB，只计算图片大小而忽略request的一些占用	
-
-​	爬取排行榜
-
-- `bookmark_crawler.py`
-
-​	传入cookie,num=200,capacity=1024
-
-​	分别指定下载数量和大小
-
-​	爬取个人公开的收藏
-
-- `users_crawler.py`
-
-​	传入画师id,cookie,capacity=1024
-
-​	下载单个画师的所有作品
-
-#### 主函数
-
-- `main.py`
-
-​	汇总各种爬虫的使用方法
-
-
-
-### 附录
-
-- `pixiv.net/robots.txt`
-
-```
-User-agent: *
-Disallow: /rpc/index.php?mode=profile_module_illusts&user_id=*&illust_id=*
-Disallow: /ajax/illust/*/recommend/init
-Disallow: *return_to*
-Disallow: /?return_to=
-Disallow: /login.php?return_to=
-Disallow: /index.php?return_to=
-
-//搜索功能
-Disallow: /tags/* * *
-Disallow: /tags/*%20*%20*
-
-Disallow: /users/*/followers
-Disallow: /users/*/mypixiv
-//别人的关注
-Disallow: /users/*/bookmarks
-Disallow: /novel/comments.php?id=
-
-
-Disallow: /en/group
-
-Disallow: /en/tags/* * *
-Disallow: /en/tags/*%20*%20*
-
-Disallow: /en/search/
-
-Disallow: /en/users/*/followers
-Disallow: /en/users/*/mypixiv
-Disallow: /en/users/*/bookmarks
-Disallow: /en/novel/comments.php?id=
-
-Disallow: /fanbox/search
-Disallow: /fanbox/tag
-```
-
+- `COOKIE`过期时间较长，一般几天内可重复使用
