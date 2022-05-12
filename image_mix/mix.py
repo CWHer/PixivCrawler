@@ -1,177 +1,213 @@
-# from:https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py
-#   原作者英语似乎不是特别好,好几个拼写错误....
-# 大致流程
-#   if FIRST_TIME 图片库->色块
-#   遍历图片,选取距离最小的色块
-#
-# 我觉得这个算法不能得出总距离最小
-# (以下都是口胡的,下次就写)
-# 一些改进的想法:
-#   1. 按照以距离为权值的优先队列填补输出图片
-#       本质上还是一个贪心,但是我觉得效果应该比目前的好
-#   2. 最小费用最大流
-#       按照以下方式建图:
-#           S --(cap:REPEAT_TIMES,cost:0)--> lib(n)
-#           lib(n) --(cap:1,cost:dist)-->target_block(m)
-#           target_block(m) --(cap:1,cost:0)--> T
-#       但是这样图建出来很大,总共有n+n*m+m条边
-#       一个近似优化:
-#           每个lib和最近的K个target_block连边
-#           每个target_block和最近的K个lib连边
-#          图片比较多的情况,我猜K=5应该差不多
-#       复杂度O(nm)建图+MCMF,再优化可以考虑套个KD Tree
-#   其它的我也想不到了orz
-import os
-from PIL import Image, ImageOps
+"""
+credit to https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py
+
+procedure:
+    1. transfer image library into color block
+    2. traverse target image, choose color block with minimum distance
+
+the above algorithm is apparently sub-optimal
+some possible improvements:
+  1. construct a priority queue with global distance (n x m) as key
+     choose minimum global distance pair, remove, and repeat
+     this is just another greedy algorithm, but I believe this works better
+
+  2. MCMF (exact algorithm)
+     construct the following graph:
+          S                 === (capacity=REPEAT_TIMES, cost=0)  ===>      blocks(n)
+          blocks(n)         === (capacity=1, cost=dist)          ===>      target_block(m)
+          target_block(m)   === (capacity=1, cost=0)             ===>      T
+     the above graph is large, which contains O(nm) edges
+     a tradeoff between accuracy and running time:
+        1. each block only connects k closest target_blocks
+        2. each target_block only connects k closest blocks
+        when image library is large, I believe K = 5 ~ 10 can yield a relatively good solution
+"""
+
 import argparse
-import time
-import random
-import math
-import sys
+import os
 from colorsys import rgb_to_hsv
-import re
-from bvh import *
+from typing import Dict, Iterable, List, Optional, Tuple
+
+import numpy as np
+from PIL import Image, ImageOps
+from tqdm import tqdm
+
+from bvh import BVH, Point
+from utils import checkDir, printError, printInfo, printWarn, timeLog
 
 
-def resize_pic(in_name, width, height=None):
-    if height == None: height = width
-    img = Image.open(in_name)
-    img = ImageOps.fit(img, (width, height), Image.ANTIALIAS)
-    return img
+class ImageLib():
+    @timeLog
+    def __init__(self, im_dir: str, config: Dict,
+                 input_dir: Optional[str] = None) -> None:
+        checkDir(im_dir)
+        self.im_dir = im_dir
+        self.config = config
 
+        if input_dir is not None:
+            self.construct(input_dir)
+        self.load()
 
-def get_avg_color(img):
-    width, height = img.size
-    pixels = img.load()
-    if type(pixels) is int:
-        raise IOError("PIL load image failed")
-    data = []
-    for x in range(width):
-        for y in range(height):
-            data.append(pixels[x, y])
-    h = s = v = count = 0
-    for i in range(len(data)):
-        r = data[i][0]
-        g = data[i][1]
-        b = data[i][2]
-        count += 1
-        hsv = rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
-        h += hsv[0]
-        s += hsv[1]
-        v += hsv[2]
-    hAvg = round(h / count, 3)
-    sAvg = round(s / count, 3)
-    vAvg = round(v / count, 3)
-    if count == 0:
-        raise IOError("load image failed")
-    return (hAvg, sAvg, vAvg)
+    @staticmethod
+    def resizeImage(im_path: str,
+                    width, height=None):
+        if height is None:
+            height = width
+        return ImageOps.fit(
+            Image.open(im_path),
+            (width, height), Image.Resampling.LANCZOS)
 
+    @staticmethod
+    def calcAvgColor(img: Image.Image) -> str:
+        pixels = img.load()
+        width, height = img.size
+        rgb_colors: Iterable[Tuple[float, float, float]] = \
+            map(lambda rgb: (rgb[0] / 255, rgb[1] / 255, rgb[2] / 255),
+                [pixels[i, j] for i in range(width) for j in range(height)])
+        hsv_colors = list(map(lambda rgb: rgb_to_hsv(*rgb), rgb_colors))
+        hsv_colors = np.array(hsv_colors)
 
-def find_closest(color):
-    t.dist = DIFF_DIST
-    t.query(0, Pos(color[0], color[1], color[2]))
-    if t.dist == DIFF_DIST:
-        raise ValueError(
-            "no enough approximate picture. recommend increase REPEAT_TIMES")
-    ans = t.nodes[t.ans].box.mx
-    t.nodes[t.ans].used_times += 1
-    if t.nodes[t.ans].used_times >= REPEAT_TIMES: t.remove(t.ans, 1)
-    return "({}, {}, {})".format(ans.pos[0], ans.pos[1], ans.pos[2])
+        hsv_average = hsv_colors.mean(axis=0)
+        hsv_average = map(lambda x: round(x, 3), hsv_average)
+        return "{}_{}_{}".format(*hsv_average)
 
+    @staticmethod
+    def loadInput(input_dir: str) -> List[str]:
+        im_paths: List[str] = []
+        suffixes = set(["jpg", "png"])
+        for file_name in os.listdir(input_dir):
+            suffix = file_name[file_name.rfind(".") + 1:]
+            if suffix not in suffixes:
+                printWarn(True, f"non-image file {file_name}")
+                continue
+            im_paths.append(input_dir + file_name)
 
-def make_puzzle(img):
-    width, height = img.size
-    print("Width = {}, Height = {}".format(width, height))
-    background = Image.new('RGB', img.size, (255, 255, 255))
-    total_images = math.floor((width * height) / (SLICE_SIZE * SLICE_SIZE))
-    images_cnt = 0
-    for y in range(0, height, SLICE_SIZE):
-        for x in range(0, width, SLICE_SIZE):
-            images_cnt += 1
+        if not im_paths:
+            raise RuntimeError("no input")
+        printInfo(f"images found: {len(im_paths)}")
+        return im_paths
+
+    def construct(self, input_dir):
+        im_paths = self.loadInput(input_dir)
+        for im_path in tqdm(
+                im_paths, desc="constructing image library"):
             try:
-                block = img.crop((x, y, x + SLICE_SIZE, y + SLICE_SIZE))
-                block = get_avg_color(block)
-                close_img_name = find_closest(block)
-                close_img_name = OUT_DIR + str(close_img_name) + '.jpg'
-                paste_img = Image.open(close_img_name)
-                bar_size = math.floor(images_cnt / total_images * 100)
-                log = "\r[{}{}]{}%".format("#" * bar_size,
-                                           " " * (100 - bar_size), bar_size)
-                print(log, end='')
-                background.paste(paste_img, (x, y))
+                im_block = self.resizeImage(
+                    im_path, self.config["BLOCK_SIZE"])
+                block_color = self.calcAvgColor(im_block)
+                im_block.save("".join(
+                    [self.im_dir, str(block_color), ".png"]))
             except Exception as e:
-                print(e)
-                print('\ncreate ' + str(x) + ',' + str(y) + ' failed')
-    return background
+                printWarn(True, e)
+                printWarn(True, f"skip {im_path}")
+
+    def load(self) -> None:
+        points = []
+        for file_name in os.listdir(self.im_dir):
+            prefix = file_name[:file_name.rfind(".")]
+            values = map(float, prefix.split("_"))
+            points.append(Point(*values))
+
+        self.bvh_tree = BVH(
+            MAX_TIMES=self.config["MAX_TIMES"])
+        self.bvh_tree.build(father=None, points=points)
+
+    def loadImage(self, im_name) -> Image.Image:
+        return Image.open(self.im_dir + im_name)
+
+    def findClosest(self, target: Point) -> str:
+        self.bvh_tree.reset()
+        self.bvh_tree.query(target)
+        printError(
+            self.bvh_tree.ans is None,
+            "run out of image library, please increase MAX_TIMES")
+
+        node = self.bvh_tree.ans
+        node.used_times += 1
+        block_color = node.box.max_p.pos
+        if node.used_times >= \
+                self.bvh_tree.MAX_TIMES:
+            self.bvh_tree.remove(node)
+        return "{}_{}_{}".format(*block_color)
 
 
-# image lib begin
-def get_image_paths():
-    paths = []
-    suffixes = ['jpg']
-    for item in os.listdir(IN_DIR):
-        suffix = item[item.rfind('.') + 1:len(item)]
-        if suffix not in suffixes:
-            print("not jpg image:%s" % item)
-            continue
-        paths.append(IN_DIR + item)
-    if len(paths) == 0:
-        raise IOError("none image is found")
-    print("images found: " + str(len(paths)))
-    return paths
+@timeLog
+def createPuzzle(image_lib: ImageLib, config: Dict,
+                 target_image: Image.Image) -> Image.Image:
+    width, height = target_image.size
+    printInfo(f"output: width = {width}, height = {height}")
+    result = Image.new("RGB", target_image.size, (255, 255, 255))
+    BLOCK_SIZE = config["BLOCK_SIZE"]
+    width, height = width // BLOCK_SIZE, height // BLOCK_SIZE
+
+    with tqdm(total=width * height,
+              desc="creating puzzle") as pbar:
+        for j in range(0, height):
+            for i in range(0, width):
+                try:
+                    x, y = i * BLOCK_SIZE, j * BLOCK_SIZE
+                    target_block = target_image.crop(
+                        (x, y, x + BLOCK_SIZE, y + BLOCK_SIZE))
+                    target_color = map(
+                        float, ImageLib.calcAvgColor(target_block).split("_"))
+                    im_name = image_lib.findClosest(
+                        Point(*target_color)) + ".png"
+                    result.paste(image_lib.loadImage(im_name), (x, y))
+                    pbar.update()
+                except Exception as e:
+                    printWarn(True, e)
+                    printError(True, f"creating ({i},{j}) failed")
+    return result
 
 
-def convert_image(path):
-    try:
-        img = resize_pic(path, SLICE_SIZE)
-        color = get_avg_color(img)
-        img.save(str(OUT_DIR) + str(color) + ".jpg")
-    except:
-        return False
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "-l", "--lib_dir", type=str, required=True,
+        help="image lib directory (e.g., ./image_lib/)")
+    parser.add_argument(
+        "-t", "--target_image", type=str, required=True,
+        help="target image path (e.g. ./images/44873217_p0.jpg)")
+    parser.add_argument(
+        "-i", "--input_dir", type=str, default=None,
+        help="raw image directory (e.g., ./images/). "
+        "NOTE: set to None if image lib is already constructed")
+    parser.add_argument(
+        "-b", "--block_size", type=int,
+        default=50, help="target image are divided into blocks")
+    parser.add_argument(
+        "-width", "--output_width", type=int,
+        default=4000, help="width of output image")
+    parser.add_argument(
+        "-height", "--output_height", type=int,
+        default=2000, help="height of output image")
+    parser.add_argument(
+        "-m", "--max_times", type=int, default=1,
+        help="max repeating times of lib blocks")
+    args = parser.parse_args()
 
+    config = {
+        "BLOCK_SIZE": args.block_size,
+        "OUTPUT_WIDTH": args.output_width,
+        "OUTPUT_HEIGHT": args.output_height,
 
-def convert_all_images():
-    paths = get_image_paths()
-    num = 0
-    print("creating image blocks...")
-    for item in paths:
-        num += 1
-        convert_image(item)
-        print('\rnum: ' + str(num), end='')
-    print("\nconvert complete")
+        "INPUT_DIR": args.input_dir,  # raw input directory
+        "LIB_DIR": args.lib_dir,  # image lib directory
+        "MAX_TIMES": args.max_times,  # max repeating times of lib blocks
 
+        "TARGET_IMAGE": args.target_image
+    }
 
-#image lib end
+    image_lib = ImageLib(
+        im_dir=config["LIB_DIR"], config=config,
+        input_dir=config["INPUT_DIR"])
+    image = config["TARGET_IMAGE"]
+    target_image = ImageLib.resizeImage(
+        image, config["OUTPUT_WIDTH"], config["OUTPUT_HEIGHT"])
 
-
-def read_img_db():
-    img_db = []
-    for item in os.listdir(OUT_DIR):
-        if item != 'None.jpg':
-            item = item.split('.jpg')[0]
-            item = list(map(float, item[1:-1].split(',')))
-            img_db.append(Pos(item[0], item[1], item[2]))
-    return img_db
-
-
-SLICE_SIZE = 100
-WIDTH = 7500
-HEIGHT = 5000
-IN_DIR = "images/"
-OUT_DIR = "images_lib/"
-DIFF_DIST = 1000
-REPEAT_TIMES = 2
-
-start_time = time.time()
-FIRST_TIME = False
-if FIRST_TIME: convert_all_images()
-image = 'images/82878621_p1.jpg'
-img = resize_pic(image, WIDTH, HEIGHT)
-t = BVH()
-t.build(None, read_img_db())
-result = make_puzzle(img)
-# blend target&result
-img = Image.blend(result, img, 0.5)
-img.save('out.jpg')
-print('\nDone')
-print("time consumed: %.3f" % (time.time() - start_time))
+    # HACK: soften result
+    result = createPuzzle(image_lib, config, target_image)
+    target_image = Image.blend(result, target_image, 0.5)
+    target_image.save("result.png")
+    printInfo("Done")

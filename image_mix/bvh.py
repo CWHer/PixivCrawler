@@ -142,7 +142,8 @@ class BVH():
         # NOTE: replace x.father with x.brother
         y: BVHNode = x.father
         printError(
-            y is None, "BVH tree is empty")
+            y is None, "BVH tree is empty, "
+            "please increase MAX_TIMES")
         z: BVHNode = y.father
         t = y.child[y.child[0] == x]
         t.father = z
