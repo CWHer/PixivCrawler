@@ -2,8 +2,11 @@
 credit to https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py
 
 procedure:
-    1. transfer image library into color block
-    2. traverse target image, choose color block with minimum distance
+    1. transfer each image in image library into a color block
+        NOTE: a color block can be seen as a huge pixel
+            i.e. a color block only represents a single color (average color)
+    2. split target image into blocks of the same size
+        for each target block, choose the color block with minimum distance, and paste on the target
 
 the above algorithm is apparently sub-optimal
 some possible improvements:
