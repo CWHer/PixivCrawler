@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     checkDir(DOWNLOAD_CONFIG["STORE_PATH"])
 
-    # case 1:
+    # case 1: (need cookie !!!)
     #   download artworks from rankings
     #   the only parameter is flow capacity, default is 1024MB
     # app = RankingCrawler(capacity=200)

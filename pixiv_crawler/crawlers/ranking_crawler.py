@@ -6,7 +6,7 @@ from typing import Set
 from collector.collector import Collector
 from collector.collector_unit import collect
 from collector.selectors import selectRanking
-from config import DOWNLOAD_CONFIG, MODE_CONFIG
+from config import DOWNLOAD_CONFIG, MODE_CONFIG, USER_CONFIG
 from downloader.downloader import Downloader
 from tqdm import tqdm
 from utils import printInfo
@@ -63,7 +63,8 @@ class RankingCrawler():
                 additional_headers = [
                     {
                         "Referer": re.search("(.*)&p", url).group(1),
-                        "x-requested-with": "XMLHttpRequest"
+                        "x-requested-with": "XMLHttpRequest",
+                        "COOKIE": USER_CONFIG["COOKIE"]
                     }
                     for url in urls]
                 for image_ids in executor.map(collect, zip(
