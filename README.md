@@ -92,6 +92,7 @@ graph LR;
   - `START_DATE`: 排行榜开始日期 :warning:
   - `RANGE`: 日期范围 :warning:
   - `MODE`: 哪个类型的排行榜（参考文件中`RANKING_MODES`） :warning:
+  - `CONTENT_MODE`: 下载插画、漫画或是全部类型的作品（参考文件中`CONTENT_MODES`） :warning:
   - `N_ARTWORK`: 排行榜前`k`幅作品 :warning:
 
 - `OUTPUT_CONFIG`部分
