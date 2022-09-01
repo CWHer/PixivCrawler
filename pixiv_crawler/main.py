@@ -26,13 +26,13 @@ if __name__ == "__main__":
     # case 3:
     #   download artworks from a single artist
     #   2nd parameter is flow capacity, default is 1024MB
-    # app = UserCrawler(artist_id="32548944", capacity=200)
-    # app.run()
+    app = UserCrawler(artist_id="32548944", capacity=200)
+    app.run()
 
     # case 4: (need premium & cookie !!!)
     #   download search results of a keyword (sorted by popularity)
     #   1st parameter is keyword
     #   2nd parameter is max download number
     #   3rd parameter is flow capacity
-    app = KeywordCrawler(keyword="女の子", n_images=20, capacity=200)
-    app.run()
+    # app = KeywordCrawler(keyword="女の子", n_images=20, capacity=200)
+    # app.run()

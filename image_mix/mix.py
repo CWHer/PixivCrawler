@@ -1,15 +1,15 @@
 """
-credit to https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py
+Credit to https://github.com/NoisyWinds/puzzle/blob/master/puzzle.py
 
-procedure:
+Procedure:
     1. transfer each image in image library into a color block
         NOTE: a color block can be seen as a huge pixel
             i.e. a color block only represents a single color (average color)
     2. split target image into blocks of the same size
         for each target block, choose the color block with minimum distance, and paste on the target
 
-the above algorithm is apparently sub-optimal
-some possible improvements:
+The above algorithm is apparently sub-optimal
+Some possible improvements:
   1. construct a priority queue with global distance (n x m) as key
      choose minimum global distance pair, remove, and repeat
      this is just another greedy algorithm, but I believe this works better
