@@ -23,13 +23,17 @@ class RankingCrawler():
         self.date = MODE_CONFIG["START_DATE"]
         self.range = MODE_CONFIG["RANGE"]
         self.mode = MODE_CONFIG["MODE"]
+        self.content = MODE_CONFIG["CONTENT_MODE"]
 
         # NOTE:
         #   1. url sample: "https://www.pixiv.net/ranking.php?
-        #       mode=daily&date=20200801&p=1&format=json"
+        #       mode=daily&content=all&date=20200801&p=1&format=json"
+        #      url sample: "https://www.pixiv.net/ranking.php?
+        #       mode=daily&content=illust&date=20220801&p=2&format=json"
         #   2. ref url sample: "https://www.pixiv.net/ranking.php?mode=daily&date=20200801"
         self.url = "https://www.pixiv.net/ranking.php?" + \
-            f"mode={self.mode}" + "&date={}&p={}&format=json"
+            f"mode={self.mode}" + f"&content={self.content}" + \
+            "&date={}&p={}&format=json"
 
         self.downloader = Downloader(capacity)
         self.collector = Collector(self.downloader)
@@ -45,7 +49,8 @@ class RankingCrawler():
         def addDate(current: datetime.date, days):
             return current + datetime.timedelta(days)
 
-        printInfo(f"===== start collecting {self.mode} ranking =====")
+        content = f"{self.mode}:{self.content}"
+        printInfo(f"===== start collecting {content} ranking =====")
         printInfo("from {} to {}".format(
             self.date.strftime("%Y-%m-%d"),
             addDate(self.date, self.range - 1).strftime("%Y-%m-%d")))
@@ -73,7 +78,7 @@ class RankingCrawler():
                         self.collector.add(image_ids)
                     pbar.update()
 
-        printInfo(f"===== collect {self.mode} ranking complete =====")
+        printInfo(f"===== collect {content} ranking complete =====")
 
     def run(self) -> float:
         self.__collect()

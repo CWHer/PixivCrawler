@@ -17,6 +17,13 @@ MODE_CONFIG = {
     ],
     "MODE": "daily",  # choose from the above
 
+    # illustration, manga, or both
+    "CONTENT_MODES": [
+        "all",  # download both illustrations & mangas
+        "illust", "manga"
+    ],
+    "CONTENT_MODE": "all",  # choose from the above
+
     # download top x in each ranking
     #   suggested x be a multiple of 50
     "N_ARTWORK": 50
