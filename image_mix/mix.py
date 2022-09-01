@@ -28,8 +28,7 @@ Some possible improvements:
 
 import argparse
 import os
-from colorsys import rgb_to_hsv
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 from PIL import Image, ImageOps
@@ -62,15 +61,9 @@ class ImageLib():
 
     @staticmethod
     def calcAvgColor(img: Image.Image) -> str:
-        pixels = img.load()
-        width, height = img.size
-        rgb_colors: Iterable[Tuple[float, float, float]] = \
-            map(lambda rgb: (rgb[0] / 255, rgb[1] / 255, rgb[2] / 255),
-                [pixels[i, j] for i in range(width) for j in range(height)])
-        hsv_colors = list(map(lambda rgb: rgb_to_hsv(*rgb), rgb_colors))
-        hsv_colors = np.array(hsv_colors)
-
-        hsv_average = hsv_colors.mean(axis=0)
+        hsv_colors = np.array(img.convert("HSV"), dtype=np.float32) / 255.
+        hsv_colors = hsv_colors.reshape(-1, hsv_colors.shape[-1])
+        hsv_average = np.mean(hsv_colors, axis=0)
         hsv_average = map(lambda x: round(x, 3), hsv_average)
         return "{}_{}_{}".format(*hsv_average)
 

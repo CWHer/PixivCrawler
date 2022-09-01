@@ -44,9 +44,6 @@ class Box():
         """[summary]
         norm = 2 dist, between box and pos
         """
-        def sqr(x):
-            return x * x
-
         d2 = 0
         for i in range(3):
             low = self.min_p.pos[i]
@@ -54,8 +51,8 @@ class Box():
             if low <= point.pos[i] \
                     and point.pos[i] <= high:
                 continue
-            d2 += sqr(low - point.pos[i]) \
-                if point.pos[i] <= low else sqr(high - point.pos[i])
+            d2 += (low - point.pos[i]) ** 2 \
+                if point.pos[i] <= low else (high - point.pos[i]) ** 2
         return math.sqrt(d2)
 
 
