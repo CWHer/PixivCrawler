@@ -39,7 +39,7 @@ optional arguments:
 
 - 首次使用样例
 
-  `python mix.py -l ../image_lib/ -t ../images/44873217_p0.jpg -i ../images -b 100 -width 2000 -height 1000 -m 2`
+  `python mix.py -l ../image_lib/ -t ../images/44873217_p0.jpg -i ../images/ -b 100 -width 2000 -height 1000 -m 2`
 
 - 后续使用样例
 
