@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # app = BookmarkCrawler(n_images=20, capacity=200)
     # app.run()
 
-    # case 3:
+    # case 3: (need cookie for R18 images !!!)
     #   download artworks from a single artist
     #   2nd parameter is flow capacity, default is 1024MB
     app = UserCrawler(artist_id="32548944", capacity=200)
