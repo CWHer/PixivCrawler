@@ -1,6 +1,7 @@
-
+import imp
 import time
 from typing import Callable, Dict, Iterable, Optional, Tuple
+import urllib
 
 import requests
 from config import DOWNLOAD_CONFIG, NETWORK_CONFIG, OUTPUT_CONFIG
@@ -13,6 +14,7 @@ def collect(args: Tuple[str, Callable, Optional[Dict]]) \
     generic metadata collector, collect metadata from templates
         e.g.: user.json, page.json, ...
         use different selector to select different elements
+        args: url, selector, additional header
     """
     url, selector, additional_headers = args
     headers = NETWORK_CONFIG["HEADER"]
