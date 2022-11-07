@@ -1,6 +1,6 @@
 # Pixiv Crawler
 
-![](https://img.shields.io/badge/python-3.9.6-green) ![](https://img.shields.io/badge/latest%20update-2022%2F10%2F11-green)
+![](https://img.shields.io/badge/python-3.9.6-green) ![](https://img.shields.io/badge/latest%20update-2022%2F11%2F7-green)
 
 一个使用`Python`实现的`Pixiv`爬虫
 
@@ -18,9 +18,9 @@
 
 - 特定画师的作品
 
-- 特定关键词的作品
+- 特定关键词的作品（支持高级关键词搜索，例如`(Lucy OR 边缘行者) AND (5000users OR 10000users)`）
 
-- 马赛克拼图（`image_mix`)
+- 马赛克拼图（`image_mix`）
 
   ![](./assets/mixture.png)
 
@@ -167,7 +167,7 @@ graph LR;
 
 - 下载某个关键词的作品
 
-  **注**：按照热门度排序，需要`premium`账户
+  **注**：按照热门度排序需要`premium`账户
 
   正确配置`USER_CONFIG`，修改主程序
 
@@ -176,7 +176,8 @@ graph LR;
   `n_images`参数用于限制最大下载数量
 
   ```python
-  app = KeywordCrawler(keyword="女の子", n_images=50, capacity=2000)
+  app = KeywordCrawler(keyword="(Lucy OR 边缘行者) AND (5000users OR 10000users)",
+                       order=False, mode=["safe", "r18", "all"][-1], n_images=20, capacity=200)
   app.run()
   ```
 
