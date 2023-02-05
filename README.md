@@ -1,6 +1,6 @@
 # Pixiv Crawler
 
-![](https://img.shields.io/badge/python-3.9.6-green) ![](https://img.shields.io/badge/latest%20update-2022%2F11%2F7-green)
+![](https://img.shields.io/badge/python-3.9.6-green) ![](https://img.shields.io/badge/latest%20update-2023%2F2%2F6-green)
 
 一个使用`Python`实现的`Pixiv`爬虫
 
