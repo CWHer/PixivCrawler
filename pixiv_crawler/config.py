@@ -11,9 +11,9 @@ MODE_CONFIG = {
     # which ranking list
     "RANKING_MODES": [
         "daily", "weekly", "monthly",
-        "male", "female",
+        "male", "female", "daily_ai",
         "daily_r18", "weekly_r18",
-        "male_r18", "female_r18"
+        "male_r18", "female_r18", "daily_r18_ai"
     ],
     "MODE": "daily",  # choose from the above
 

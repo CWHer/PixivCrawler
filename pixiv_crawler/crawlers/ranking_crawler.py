@@ -23,6 +23,7 @@ class RankingCrawler():
         self.date = MODE_CONFIG["START_DATE"]
         self.range = MODE_CONFIG["RANGE"]
         self.mode = MODE_CONFIG["MODE"]
+        assert self.mode in MODE_CONFIG["RANKING_MODES"]
         self.content = MODE_CONFIG["CONTENT_MODE"]
 
         # NOTE:
