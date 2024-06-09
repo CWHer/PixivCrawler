@@ -16,16 +16,14 @@ def selectTag(response: Response) -> List[str]:
         List[str]: tags
     """
     result = re.search("artworks/(\d+)", response.url)
-    if result is None:
-        printError(True, f"bad response in selectTag for URL: {response.url}")
-        return []
+    assert result is not None, f"bad response in selectTag for URL: {response.url}"
 
     illust_id = result.group(1)
     content = json.loads(
         BeautifulSoup(response.text, 'html.parser')
         .find(id="meta-preload-data")
         .get("content")
-        )
+    )
 
     return [
         tag["translation"]["en"] if "translation" in tag else tag["tag"]
