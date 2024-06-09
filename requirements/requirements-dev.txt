@@ -1,0 +1,7 @@
+beautifulsoup4>=4.12
+numpy>=1.26
+Pillow>=10.3
+pipreqs>=0.5.0
+pre-commit>=3.7
+Requests>=2.32
+tqdm>=4.64
