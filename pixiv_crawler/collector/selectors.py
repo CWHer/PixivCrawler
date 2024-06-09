@@ -2,7 +2,7 @@ import json
 import re
 from typing import List, Set
 
-from pyquery import PyQuery
+from bs4 import BeautifulSoup
 from requests.models import Response
 from utils import printError, writeFailLog
 
@@ -16,11 +16,15 @@ def selectTag(response: Response) -> List[str]:
         List[str]: tags
     """
     result = re.search("artworks/(\d+)", response.url)
-    printError(result is None, "bad response in selectTag")
+    assert result is not None, f"bad response in selectTag for URL: {response.url}"
+
     illust_id = result.group(1)
     content = json.loads(
-        PyQuery(response.text).find(
-            "#meta-preload-data").attr("content"))
+        BeautifulSoup(response.text, 'html.parser')
+        .find(id="meta-preload-data")
+        .get("content")
+    )
+
     return [
         tag["translation"]["en"] if "translation" in tag else tag["tag"]
         for tag in content["illust"][illust_id]["tags"]["tags"]

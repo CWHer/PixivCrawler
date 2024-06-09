@@ -1,8 +1,8 @@
+beautifulsoup4==4.12.3
 charset-normalizer==3.0.1
 cssselect==1.2.0
 idna==3.4
 lxml==4.9.2
-pyquery==2.0.0
 requests==2.28.2
 tqdm==4.64.1
 urllib3==1.26.14
