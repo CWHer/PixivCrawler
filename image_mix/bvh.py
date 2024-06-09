@@ -7,7 +7,7 @@ from typing import List, Optional
 from utils import printError
 
 
-class Point():
+class Point:
     def __init__(self, x, y, z):
         self.pos = [x, y, z]
 
@@ -24,7 +24,7 @@ class Point():
         return self.pos[2]
 
 
-class Box():
+class Box:
     def __init__(self, min_p: Point, max_p: Point):
         # NOTE: max_p == min_p at leaf node
         self.min_p = min_p
@@ -32,12 +32,12 @@ class Box():
 
     @staticmethod
     def boundingBox(a: Box, b: Box) -> Box:
-        min_p = Point(min(a.min_p.x, b.min_p.x),
-                      min(a.min_p.y, b.min_p.y),
-                      min(a.min_p.z, b.min_p.z))
-        max_p = Point(max(a.max_p.x, b.max_p.x),
-                      max(a.max_p.y, b.max_p.y),
-                      max(a.max_p.z, b.max_p.z))
+        min_p = Point(
+            min(a.min_p.x, b.min_p.x), min(a.min_p.y, b.min_p.y), min(a.min_p.z, b.min_p.z)
+        )
+        max_p = Point(
+            max(a.max_p.x, b.max_p.x), max(a.max_p.y, b.max_p.y), max(a.max_p.z, b.max_p.z)
+        )
         return Box(min_p, max_p)
 
     def dist(self, point: Point) -> float:
@@ -48,15 +48,13 @@ class Box():
         for i in range(3):
             low = self.min_p.pos[i]
             high = self.max_p.pos[i]
-            if low <= point.pos[i] \
-                    and point.pos[i] <= high:
+            if low <= point.pos[i] and point.pos[i] <= high:
                 continue
-            d2 += (low - point.pos[i]) ** 2 \
-                if point.pos[i] <= low else (high - point.pos[i]) ** 2
+            d2 += (low - point.pos[i]) ** 2 if point.pos[i] <= low else (high - point.pos[i]) ** 2
         return math.sqrt(d2)
 
 
-class BVHNode():
+class BVHNode:
     def __init__(self, father):
         self.used_times = 0
         self.father = father
@@ -64,7 +62,7 @@ class BVHNode():
         self.child: List[BVHNode] = []
 
 
-class BVH():
+class BVH:
     def __init__(self, MAX_TIMES: int):
         random.seed(0)
         self.root: Optional[BVHNode] = None
@@ -77,9 +75,7 @@ class BVH():
         self.dist: float = float("inf")
         self.ans: Optional[BVHNode] = None
 
-    def build(self,
-              father: Optional[BVHNode],
-              points: List[Point]) -> None:
+    def build(self, father: Optional[BVHNode], points: List[Point]) -> None:
         n_box = len(points)
         current = BVHNode(father)
         self.nodes.append(current)
@@ -94,8 +90,7 @@ class BVH():
         if n_box == 2:
             self.build(current, [points[0]])
             self.build(current, [points[-1]])
-            current.box = Box.boundingBox(
-                current.child[0].box, current.child[1].box)
+            current.box = Box.boundingBox(current.child[0].box, current.child[1].box)
             return
 
         axis = random.randint(0, 2)
@@ -103,11 +98,9 @@ class BVH():
         mid = n_box // 2
         self.build(current, points[0:mid])
         self.build(current, points[mid:n_box])
-        current.box = Box.boundingBox(
-            current.child[0].box, current.child[1].box)
+        current.box = Box.boundingBox(current.child[0].box, current.child[1].box)
 
-    def query(self, q: Point,
-              x: Optional[BVHNode] = None) -> None:
+    def query(self, q: Point, x: Optional[BVHNode] = None) -> None:
         """[summary]
         find the point in the tree, that is closest to a given q
         """
@@ -115,8 +108,7 @@ class BVH():
             x: BVHNode = self.root
 
         if len(x.child) == 0:
-            if x.used_times >= \
-                    self.MAX_TIMES:
+            if x.used_times >= self.MAX_TIMES:
                 return
             dist = x.box.dist(q)
             if dist < self.dist:
@@ -124,9 +116,7 @@ class BVH():
                 self.ans = x
             return
 
-        children = [
-            (x.child[i], x.child[i].box.dist(q))
-            for i in range(2)]
+        children = [(x.child[i], x.child[i].box.dist(q)) for i in range(2)]
         children.sort(key=lambda x: x[-1])
         for child, dist in children:
             if dist < self.dist:
@@ -138,9 +128,7 @@ class BVH():
         """
         # NOTE: replace x.father with x.brother
         y: BVHNode = x.father
-        printError(
-            y is None, "BVH tree is empty, "
-            "please increase MAX_TIMES")
+        printError(y is None, "BVH tree is empty, " "please increase MAX_TIMES")
         z: BVHNode = y.father
         t = y.child[y.child[0] == x]
         t.father = z
@@ -152,17 +140,14 @@ class BVH():
 
         current = z
         while current is not None:
-            current.box = Box.boundingBox(
-                current.child[0].box, current.child[1].box)
+            current.box = Box.boundingBox(current.child[0].box, current.child[1].box)
             current = current.father
 
 
 if __name__ == "__main__":
     # debug
     def genPoint():
-        return Point(random.random(),
-                     random.random(),
-                     random.random())
+        return Point(random.random(), random.random(), random.random())
 
     bvh_tree = BVH(MAX_TIMES=1)
     points = [genPoint() for _ in range(100)]
@@ -183,7 +168,6 @@ if __name__ == "__main__":
     ans = bvh_tree.ans.box.max_p
     print(f"({ans.x}, {ans.y}, {ans.z})")
 
-    distances = [
-        Box(point, point).dist(q) for point in points]
+    distances = [Box(point, point).dist(q) for point in points]
     distances.sort()
     print(distances[:5])

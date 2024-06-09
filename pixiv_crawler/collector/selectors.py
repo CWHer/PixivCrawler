@@ -4,7 +4,7 @@ from typing import List, Set
 
 from bs4 import BeautifulSoup
 from requests.models import Response
-from utils import printError, writeFailLog
+from utils import writeFailLog
 
 
 def selectTag(response: Response) -> List[str]:
@@ -20,9 +20,7 @@ def selectTag(response: Response) -> List[str]:
 
     illust_id = result.group(1)
     content = json.loads(
-        BeautifulSoup(response.text, 'html.parser')
-        .find(id="meta-preload-data")
-        .get("content")
+        BeautifulSoup(response.text, "html.parser").find(id="meta-preload-data").get("content")
     )
 
     return [
@@ -53,8 +51,7 @@ def selectRanking(response: Response) -> Set[str]:
     Returns:
         Set[str]: illust_id (image_id)
     """
-    image_ids = [artwork["illust_id"]
-                 for artwork in response.json()["contents"]]
+    image_ids = [artwork["illust_id"] for artwork in response.json()["contents"]]
     return set(map(str, image_ids))
 
 
@@ -98,7 +95,6 @@ def selectKeyword(response: Response) -> Set[str]:
     """
     # NOTE: id of disable artwork is int (not str)
     id_group: Set[str] = set()
-    for artwork in response.json()[
-            "body"]["illustManga"]["data"]:
+    for artwork in response.json()["body"]["illustManga"]["data"]:
         id_group.add(artwork["id"])
     return id_group

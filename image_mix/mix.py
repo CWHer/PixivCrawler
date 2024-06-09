@@ -31,17 +31,15 @@ import os
 from typing import Dict, List, Optional
 
 import numpy as np
+from bvh import BVH, Point
 from PIL import Image, ImageOps
 from tqdm import tqdm
-
-from bvh import BVH, Point
 from utils import checkDir, printError, printInfo, printWarn, timeLog
 
 
-class ImageLib():
+class ImageLib:
     @timeLog
-    def __init__(self, im_dir: str, config: Dict,
-                 input_dir: Optional[str] = None) -> None:
+    def __init__(self, im_dir: str, config: Dict, input_dir: Optional[str] = None) -> None:
         checkDir(im_dir)
         self.im_dir = im_dir
         self.config = config
@@ -51,17 +49,16 @@ class ImageLib():
         self.load()
 
     @staticmethod
-    def resizeImage(im_path: str,
-                    width, height=None):
+    def resizeImage(im_path: str, width, height=None):
         if height is None:
             height = width
         return ImageOps.fit(
-            Image.open(im_path).convert("RGB"),
-            (width, height), Image.Resampling.LANCZOS)
+            Image.open(im_path).convert("RGB"), (width, height), Image.Resampling.LANCZOS
+        )
 
     @staticmethod
     def calcAvgColor(img: Image.Image) -> str:
-        hsv_colors = np.array(img.convert("HSV"), dtype=np.float32) / 255.
+        hsv_colors = np.array(img.convert("HSV"), dtype=np.float32) / 255.0
         hsv_colors = hsv_colors.reshape(-1, hsv_colors.shape[-1])
         hsv_average = np.mean(hsv_colors, axis=0)
         hsv_average = map(lambda x: round(x, 3), hsv_average)
@@ -72,7 +69,7 @@ class ImageLib():
         im_paths: List[str] = []
         suffixes = set(["jpg", "png"])
         for file_name in os.listdir(input_dir):
-            suffix = file_name[file_name.rfind(".") + 1:]
+            suffix = file_name[file_name.rfind(".") + 1 :]
             if suffix not in suffixes:
                 printWarn(True, f"non-image file {file_name}")
                 continue
@@ -85,14 +82,11 @@ class ImageLib():
 
     def construct(self, input_dir):
         im_paths = self.loadInput(input_dir)
-        for im_path in tqdm(
-                im_paths, desc="constructing image library"):
+        for im_path in tqdm(im_paths, desc="constructing image library"):
             try:
-                im_block = self.resizeImage(
-                    im_path, self.config["BLOCK_SIZE"])
+                im_block = self.resizeImage(im_path, self.config["BLOCK_SIZE"])
                 block_color = self.calcAvgColor(im_block)
-                im_block.save("".join(
-                    [self.im_dir, str(block_color), ".png"]))
+                im_block.save("".join([self.im_dir, str(block_color), ".png"]))
             except Exception as e:
                 printWarn(True, e)
                 printWarn(True, f"skip {im_path}")
@@ -100,12 +94,11 @@ class ImageLib():
     def load(self) -> None:
         points = []
         for file_name in os.listdir(self.im_dir):
-            prefix = file_name[:file_name.rfind(".")]
+            prefix = file_name[: file_name.rfind(".")]
             values = map(float, prefix.split("_"))
             points.append(Point(*values))
 
-        self.bvh_tree = BVH(
-            MAX_TIMES=self.config["MAX_TIMES"])
+        self.bvh_tree = BVH(MAX_TIMES=self.config["MAX_TIMES"])
         self.bvh_tree.build(father=None, points=points)
 
     def loadImage(self, im_name) -> Image.Image:
@@ -114,40 +107,32 @@ class ImageLib():
     def findClosest(self, target: Point) -> str:
         self.bvh_tree.reset()
         self.bvh_tree.query(target)
-        printError(
-            self.bvh_tree.ans is None,
-            "run out of image library, please increase MAX_TIMES")
+        printError(self.bvh_tree.ans is None, "run out of image library, please increase MAX_TIMES")
 
         node = self.bvh_tree.ans
         node.used_times += 1
         block_color = node.box.max_p.pos
-        if node.used_times >= \
-                self.bvh_tree.MAX_TIMES:
+        if node.used_times >= self.bvh_tree.MAX_TIMES:
             self.bvh_tree.remove(node)
         return "{}_{}_{}".format(*block_color)
 
 
 @timeLog
-def createPuzzle(image_lib: ImageLib, config: Dict,
-                 target_image: Image.Image) -> Image.Image:
+def createPuzzle(image_lib: ImageLib, config: Dict, target_image: Image.Image) -> Image.Image:
     width, height = target_image.size
     printInfo(f"output: width = {width}, height = {height}")
     result = Image.new("RGB", target_image.size, (255, 255, 255))
     BLOCK_SIZE = config["BLOCK_SIZE"]
     width, height = width // BLOCK_SIZE, height // BLOCK_SIZE
 
-    with tqdm(total=width * height,
-              desc="creating puzzle") as pbar:
+    with tqdm(total=width * height, desc="creating puzzle") as pbar:
         for j in range(0, height):
             for i in range(0, width):
                 try:
                     x, y = i * BLOCK_SIZE, j * BLOCK_SIZE
-                    target_block = target_image.crop(
-                        (x, y, x + BLOCK_SIZE, y + BLOCK_SIZE))
-                    target_color = map(
-                        float, ImageLib.calcAvgColor(target_block).split("_"))
-                    im_name = image_lib.findClosest(
-                        Point(*target_color)) + ".png"
+                    target_block = target_image.crop((x, y, x + BLOCK_SIZE, y + BLOCK_SIZE))
+                    target_color = map(float, ImageLib.calcAvgColor(target_block).split("_"))
+                    im_name = image_lib.findClosest(Point(*target_color)) + ".png"
                     result.paste(image_lib.loadImage(im_name), (x, y))
                     pbar.update()
                 except Exception as e:
@@ -157,50 +142,52 @@ def createPuzzle(image_lib: ImageLib, config: Dict,
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        "-l", "--lib_dir", type=str, required=True,
-        help="image lib directory (e.g., ./image_lib/)")
+        "-l", "--lib_dir", type=str, required=True, help="image lib directory (e.g., ./image_lib/)"
+    )
     parser.add_argument(
-        "-t", "--target_image", type=str, required=True,
-        help="target image path (e.g. ./images/44873217_p0.jpg)")
+        "-t",
+        "--target_image",
+        type=str,
+        required=True,
+        help="target image path (e.g. ./images/44873217_p0.jpg)",
+    )
     parser.add_argument(
-        "-i", "--input_dir", type=str, default=None,
+        "-i",
+        "--input_dir",
+        type=str,
+        default=None,
         help="raw image directory (e.g., ./images/). "
-        "NOTE: set to None if image lib is already constructed")
+        "NOTE: set to None if image lib is already constructed",
+    )
     parser.add_argument(
-        "-b", "--block_size", type=int,
-        default=50, help="target image are divided into blocks")
+        "-b", "--block_size", type=int, default=50, help="target image are divided into blocks"
+    )
     parser.add_argument(
-        "-width", "--output_width", type=int,
-        default=4000, help="width of output image")
+        "-width", "--output_width", type=int, default=4000, help="width of output image"
+    )
     parser.add_argument(
-        "-height", "--output_height", type=int,
-        default=2000, help="height of output image")
+        "-height", "--output_height", type=int, default=2000, help="height of output image"
+    )
     parser.add_argument(
-        "-m", "--max_times", type=int, default=1,
-        help="max repeating times of lib blocks")
+        "-m", "--max_times", type=int, default=1, help="max repeating times of lib blocks"
+    )
     args = parser.parse_args()
 
     config = {
         "BLOCK_SIZE": args.block_size,
         "OUTPUT_WIDTH": args.output_width,
         "OUTPUT_HEIGHT": args.output_height,
-
         "INPUT_DIR": args.input_dir,  # raw input directory
         "LIB_DIR": args.lib_dir,  # image lib directory
         "MAX_TIMES": args.max_times,  # max repeating times of lib blocks
-
-        "TARGET_IMAGE": args.target_image
+        "TARGET_IMAGE": args.target_image,
     }
 
-    image_lib = ImageLib(
-        im_dir=config["LIB_DIR"], config=config,
-        input_dir=config["INPUT_DIR"])
+    image_lib = ImageLib(im_dir=config["LIB_DIR"], config=config, input_dir=config["INPUT_DIR"])
     image = config["TARGET_IMAGE"]
-    target_image = ImageLib.resizeImage(
-        image, config["OUTPUT_WIDTH"], config["OUTPUT_HEIGHT"])
+    target_image = ImageLib.resizeImage(image, config["OUTPUT_WIDTH"], config["OUTPUT_HEIGHT"])
 
     # HACK: soften result
     result = createPuzzle(image_lib, config, target_image)

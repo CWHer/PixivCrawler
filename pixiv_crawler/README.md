@@ -129,4 +129,3 @@ Disallow: /en/novel/comments.php?id=
 Disallow: /fanbox/search
 Disallow: /fanbox/tag
 ```
-

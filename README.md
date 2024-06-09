@@ -66,10 +66,10 @@ graph LR;
 - `./templates`
 
     `Pixiv`网站部分`json`, `html`的样例
-    
+
     说明见`./pixiv_crawler/collector/selectors.py`
-    
-    
+
+
 
 
 ## 如何使用

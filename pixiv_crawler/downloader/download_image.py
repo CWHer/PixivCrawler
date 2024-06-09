@@ -17,7 +17,7 @@ def downloadImage(url: str) -> float:
         img-original/img/2022/05/11/00/00/12/98259515_p0.jpg"
     """
 
-    image_name = url[url.rfind("/") + 1:]
+    image_name = url[url.rfind("/") + 1 :]
     result = re.search("/(\d+)_", url)
     printError(result is None, "bad url in image downloader")
     image_id = result.group(1)
@@ -39,13 +39,11 @@ def downloadImage(url: str) -> float:
     for i in range(DOWNLOAD_CONFIG["N_TIMES"]):
         try:
             response = requests.get(
-                url, headers=headers,
-                proxies=NETWORK_CONFIG["PROXY"],
-                timeout=(4, wait_time))
+                url, headers=headers, proxies=NETWORK_CONFIG["PROXY"], timeout=(4, wait_time)
+            )
 
             if response.status_code == 200:
-                image_size = int(
-                    response.headers["content-length"])
+                image_size = int(response.headers["content-length"])
                 # deletc incomplete image
                 if len(response.content) != image_size:
                     time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
@@ -60,8 +58,7 @@ def downloadImage(url: str) -> float:
 
         except Exception as e:
             printWarn(error_output, e)
-            printWarn(error_output,
-                      f"This is {i} attempt to download {image_name}")
+            printWarn(error_output, f"This is {i} attempt to download {image_name}")
 
             time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
 
