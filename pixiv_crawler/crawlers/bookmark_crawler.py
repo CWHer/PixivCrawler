@@ -12,7 +12,7 @@ from tqdm import tqdm
 from utils import printError, printInfo, printWarn
 
 
-class BookmarkCrawler():
+class BookmarkCrawler:
     """[summary]
     download user's public bookmarks
     """
@@ -40,9 +40,8 @@ class BookmarkCrawler():
         for i in range(DOWNLOAD_CONFIG["N_TIMES"]):
             try:
                 response = requests.get(
-                    url, headers=headers,
-                    proxies=NETWORK_CONFIG["PROXY"],
-                    timeout=4)
+                    url, headers=headers, proxies=NETWORK_CONFIG["PROXY"], timeout=4
+                )
 
                 if response.status_code == 200:
                     n_total = int(response.json()["body"]["public"][0]["cnt"])
@@ -53,8 +52,7 @@ class BookmarkCrawler():
 
             except Exception as e:
                 printWarn(error_output, e)
-                printWarn(error_output,
-                          f"This is {i} attempt to request bookmark count")
+                printWarn(error_output, f"This is {i} attempt to request bookmark count")
 
                 time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
 
@@ -77,16 +75,20 @@ class BookmarkCrawler():
 
         urls: Set[str] = set()
         for i in range(n_page):
-            urls.add(self.url + "/bookmarks?tag=&" +
-                     f"offset={i * ARTWORK_PER}&limit={ARTWORK_PER}&rest=show&lang=zh")
+            urls.add(
+                self.url
+                + "/bookmarks?tag=&"
+                + f"offset={i * ARTWORK_PER}&limit={ARTWORK_PER}&rest=show&lang=zh"
+            )
 
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
             with tqdm(total=len(urls), desc="collecting ids") as pbar:
                 additional_headers = {"COOKIE": USER_CONFIG["COOKIE"]}
-                for image_ids in executor.map(collect, zip(
-                        urls, [selectBookmark] * len(urls),
-                        [additional_headers] * len(urls))):
+                for image_ids in executor.map(
+                    collect,
+                    zip(urls, [selectBookmark] * len(urls), [additional_headers] * len(urls)),
+                ):
                     if image_ids is not None:
                         self.collector.add(image_ids)
                     pbar.update()

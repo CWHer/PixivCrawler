@@ -12,7 +12,7 @@ from tqdm import tqdm
 from utils import printInfo
 
 
-class RankingCrawler():
+class RankingCrawler:
     def __init__(self, capacity=1024):
         """[summary]
         download artworks from ranking
@@ -32,9 +32,12 @@ class RankingCrawler():
         #      url sample: "https://www.pixiv.net/ranking.php?
         #       mode=daily&content=illust&date=20220801&p=2&format=json"
         #   2. ref url sample: "https://www.pixiv.net/ranking.php?mode=daily&date=20200801"
-        self.url = "https://www.pixiv.net/ranking.php?" + \
-            f"mode={self.mode}" + f"&content={self.content}" + \
-            "&date={}&p={}&format=json"
+        self.url = (
+            "https://www.pixiv.net/ranking.php?"
+            + f"mode={self.mode}"
+            + f"&content={self.content}"
+            + "&date={}&p={}&format=json"
+        )
 
         self.downloader = Downloader(capacity)
         self.collector = Collector(self.downloader)
@@ -52,15 +55,17 @@ class RankingCrawler():
 
         content = f"{self.mode}:{self.content}"
         printInfo(f"===== start collecting {content} ranking =====")
-        printInfo("from {} to {}".format(
-            self.date.strftime("%Y-%m-%d"),
-            addDate(self.date, self.range - 1).strftime("%Y-%m-%d")))
+        printInfo(
+            "from {} to {}".format(
+                self.date.strftime("%Y-%m-%d"),
+                addDate(self.date, self.range - 1).strftime("%Y-%m-%d"),
+            )
+        )
 
         urls: Set[str] = set()
         for _ in range(self.range):
             for i in range(n_page):
-                urls.add(self.url.format(
-                    self.date.strftime("%Y%m%d"), i + 1))
+                urls.add(self.url.format(self.date.strftime("%Y%m%d"), i + 1))
             self.date = addDate(self.date, 1)
 
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
@@ -70,11 +75,13 @@ class RankingCrawler():
                     {
                         "Referer": re.search("(.*)&p", url).group(1),
                         "x-requested-with": "XMLHttpRequest",
-                        "COOKIE": USER_CONFIG["COOKIE"]
+                        "COOKIE": USER_CONFIG["COOKIE"],
                     }
-                    for url in urls]
-                for image_ids in executor.map(collect, zip(
-                        urls, [selectRanking] * len(urls), additional_headers)):
+                    for url in urls
+                ]
+                for image_ids in executor.map(
+                    collect, zip(urls, [selectRanking] * len(urls), additional_headers)
+                ):
                     if image_ids is not None:
                         self.collector.add(image_ids)
                     pbar.update()

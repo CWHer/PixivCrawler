@@ -66,10 +66,10 @@ graph LR;
 - `./templates`
 
     `Pixiv`网站部分`json`, `html`的样例
-    
+
     说明见`./pixiv_crawler/collector/selectors.py`
-    
-    
+
+
 
 
 ## 如何使用
@@ -79,7 +79,7 @@ graph LR;
 ### 1. 安装Python及其依赖库
 
 - `Python >= 3.9`
-- `pip install requirements.txt -r `
+- `pip install -r requirements/requirements.txt`
 
 ### 2. 修改配置文件
 

@@ -6,11 +6,12 @@ def timeLog(func):
     @wraps(func)
     def clocked(*args, **kwargs):
         from time import time
+
         start_time = time()
         ret = func(*args, **kwargs)
-        print("{}() finishes after {:.2f} s".format(
-            func.__name__, time() - start_time))
+        print("{}() finishes after {:.2f} s".format(func.__name__, time() - start_time))
         return ret
+
     return clocked
 
 

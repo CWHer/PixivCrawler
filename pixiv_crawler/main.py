@@ -5,9 +5,7 @@ from crawlers.ranking_crawler import RankingCrawler
 from crawlers.users_crawler import UserCrawler
 from utils import checkDir
 
-
 if __name__ == "__main__":
-
     checkDir(DOWNLOAD_CONFIG["STORE_PATH"])
 
     # case 1: (need cookie !!!)
@@ -38,6 +36,11 @@ if __name__ == "__main__":
     #   3rd parameter is mode (support ["safe", "r18", "all"], default is "safe")
     #   4th parameter is max download number
     #   5th parameter is flow capacity
-    app = KeywordCrawler(keyword="(Lucy OR 边缘行者) AND (5000users OR 10000users)",
-                         order=False, mode=["safe", "r18", "all"][-1], n_images=20, capacity=200)
+    app = KeywordCrawler(
+        keyword="(Lucy OR 边缘行者) AND (5000users OR 10000users)",
+        order=False,
+        mode=["safe", "r18", "all"][-1],
+        n_images=20,
+        capacity=200,
+    )
     app.run()

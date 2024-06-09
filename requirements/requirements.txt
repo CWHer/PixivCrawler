@@ -1,0 +1,5 @@
+beautifulsoup4>=4.12
+numpy>=1.26
+Pillow>=10.3
+Requests>=2.32
+tqdm>=4.64

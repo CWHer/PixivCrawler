@@ -6,7 +6,7 @@ from downloader.downloader import Downloader
 from utils import printInfo
 
 
-class UserCrawler():
+class UserCrawler:
     """[summary]
     collect all artworks from single artist
 
@@ -24,10 +24,9 @@ class UserCrawler():
         additional_headers = {
             "Referer": f"https://www.pixiv.net/users/{self.artist_id}/illustrations",
             "x-user-id": USER_CONFIG["USER_ID"],
-            "COOKIE": USER_CONFIG["COOKIE"]
+            "COOKIE": USER_CONFIG["COOKIE"],
         }
-        image_ids = collect(
-            (url, selectUser, additional_headers))
+        image_ids = collect((url, selectUser, additional_headers))
         if image_ids is not None:
             self.collector.add(image_ids)
         printInfo(f"===== collect user {self.artist_id} complete =====")

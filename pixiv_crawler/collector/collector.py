@@ -11,7 +11,7 @@ from .collector_unit import collect
 from .selectors import selectPage, selectTag
 
 
-class Collector():
+class Collector:
     """[summary]
     collect all image ids in each artwork, and send to downloader
     NOTE: an artwork may contain multiple images
@@ -35,14 +35,17 @@ class Collector():
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
             with tqdm(total=len(self.id_group), desc="collecting tags") as pbar:
-                urls = [f"https://www.pixiv.net/artworks/{illust_id}"
-                        for illust_id in self.id_group]
-                additional_headers = {
-                    "Referer": "https://www.pixiv.net/bookmark.php?type=user"}
+                urls = [
+                    f"https://www.pixiv.net/artworks/{illust_id}" for illust_id in self.id_group
+                ]
+                additional_headers = {"Referer": "https://www.pixiv.net/bookmark.php?type=user"}
                 for illust_id, tags in zip(
-                        self.id_group, executor.map(collect, zip(
-                            urls, [selectTag] * len(urls),
-                            [additional_headers] * len(urls)))):
+                    self.id_group,
+                    executor.map(
+                        collect,
+                        zip(urls, [selectTag] * len(urls), [additional_headers] * len(urls)),
+                    ),
+                ):
                     if tags is not None:
                         self.tags[illust_id] = tags
                     pbar.update()
@@ -66,16 +69,20 @@ class Collector():
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
             with tqdm(total=len(self.id_group), desc="collecting urls") as pbar:
-                urls = [f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=zh"
-                        for illust_id in self.id_group]
+                urls = [
+                    f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=zh"
+                    for illust_id in self.id_group
+                ]
                 additional_headers = [
                     {
                         "Referer": f"https://www.pixiv.net/artworks/{illust_id}",
-                        "x-user-id": USER_CONFIG["USER_ID"]
+                        "x-user-id": USER_CONFIG["USER_ID"],
                     }
-                    for illust_id in self.id_group]
-                for urls in executor.map(collect, zip(
-                        urls, [selectPage] * len(urls), additional_headers)):
+                    for illust_id in self.id_group
+                ]
+                for urls in executor.map(
+                    collect, zip(urls, [selectPage] * len(urls), additional_headers)
+                ):
                     if urls is not None:
                         self.downloader.add(urls)
                     pbar.update()

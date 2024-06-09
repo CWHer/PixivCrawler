@@ -1,4 +1,8 @@
+# VS Code and its extensions
 .vscode/
+.history/
+
+# temporary test files
 test.py
 
 # fail log
