@@ -47,13 +47,13 @@ options:
 
 - 首次使用样例
 
-  `python mix_image.py -l ../image_lib/ -t ../images/44873217_p0.jpg -i ../images/ -b 100 -width 2000 -height 1000 -m 2`
+  `python -m pixiv_utils.image_mix.mix_image -l ../image_lib/ -t ../images/44873217_p0.jpg -i ../images/ -b 100 -width 2000 -height 1000 -m 2`
 
 - 后续使用样例
 
   不需要添加`-i INPUT_DIR, --input-dir INPUT_DIR`参数
 
-  `python mix_image.py -l ../image_lib/ -t ../images/44873217_p0.jpg -b 100 -width 2000 -height 1000 -m 2`
+  `python -m pixiv_utils.image_mix.mix_image -l ../image_lib/ -t ../images/44873217_p0.jpg -b 100 -width 2000 -height 1000 -m 2`
 
 ## 算法原理
 
