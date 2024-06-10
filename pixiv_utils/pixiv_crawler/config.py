@@ -27,8 +27,8 @@ class RankingConfig:
         "daily_r18_ai",
     )
     mode: str = "daily"  # Choose from the above
-    # Illustration, manga, or both
-    content_modes: Tuple = ("all", "illust", "manga")
+    # Illustration, manga, ugoira, all
+    content_modes: Tuple = ("all", "illust", "manga", "ugoira")
     content_mode: str = "all"  # Choose from the above
     # Download top k in each ranking
     num_artwork: int = 50

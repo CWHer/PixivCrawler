@@ -57,7 +57,7 @@ def downloadImage(url: str, download_time: float = 10) -> float:
 
                 with open(image_path, "wb") as f:
                     f.write(response.content)
-                if verbose_output:
+                if debug_config.verbose:
                     printInfo(f"{image_name} complete")
                 return image_size / 2**20
 
