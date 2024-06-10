@@ -2,11 +2,11 @@ name: Test on schedule
 
 on:
   schedule:
-    - cron: "0 0 * * 0"
+    - cron: "0 0 * * *"
 
 jobs:
   tests:
-    name: Run unittest weekly
+    name: Run comprehensive tests
 
     runs-on: ${{ matrix.os }}
 
