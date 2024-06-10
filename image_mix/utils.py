@@ -3,18 +3,18 @@ from functools import wraps
 
 
 def printInfo(msg):
-    print("[INFO]: {}".format(msg))
+    print(f"\x1b[32;20m[INFO]:\x1b[0m {msg}")
 
 
 def assertWarn(expr: bool, msg):
     try:
-        assert expr, f"[WARN]: {msg}"
+        assert expr, f"\x1b[33;20m[WARN]:\x1b[0m {msg}"
     except AssertionError as e:
         print(e)
 
 
 def assertError(expr: bool, msg):
-    assert expr, f"[ERROR]: {msg}"
+    assert expr, f"\x1b[31;20m[ERROR]:\x1b[0m {msg}"
 
 
 def checkDir(dir_path):

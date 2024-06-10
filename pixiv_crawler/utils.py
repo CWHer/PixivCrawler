@@ -1,47 +1,51 @@
+import datetime
 import os
+import threading
 from functools import wraps
-from threading import Lock
 
 # >>> log utils
-# output mutex lock
-log_lock = Lock()
+log_lock = threading.Lock()  # output mutex lock
 
 
-def writeFailLog(text: str):
-    """[summary]
-    append text in fail_log.txt
+def writeFailLog(text: str, file_name: str = "failures.log"):
     """
-    with log_lock:
-        with open("fail_log.txt", "a+") as f:
-            f.write(text)
+    Append the specified text to the failures.log file.
 
+    Parameters:
+        text (str): The text to be appended to the failures.log file.
+        file_name (str): The name of the file to which the text will be appended.
 
-def timeLog(func):
-    @wraps(func)
-    def clocked(*args, **kwargs):
-        from time import time
-
-        start_time = time()
-        ret = func(*args, **kwargs)
-        print("{}() finishes after {:.2f} s".format(func.__name__, time() - start_time))
-        return ret
-
-    return clocked
+    """
+    with log_lock and open(file_name, "a+") as f:
+        f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S : ") + text + "\n")
 
 
 def printInfo(msg):
-    print("[INFO]: {}".format(msg))
+    print(f"\x1b[32;20m[INFO]:\x1b[0m {msg}")
 
 
-def printWarn(expr: bool, msg):
-    if expr:
-        print("[WARN]: {}".format(msg))
+def assertWarn(expr: bool, msg):
+    try:
+        assert expr, f"\x1b[33;20m[WARN]:\x1b[0m {msg}"
+    except AssertionError as e:
+        print(e)
 
 
-def printError(expr: bool, msg):
-    if expr:
-        print("[ERROR]: {}".format(msg))
-        raise RuntimeError()
+def assertError(expr: bool, msg):
+    assert expr, f"\x1b[31;20m[ERROR]:\x1b[0m {msg}"
+
+
+def logTime(func):
+    @wraps(func)
+    def clockedFn(*args, **kwargs):
+        import time
+
+        start_time = time.time()
+        ret = func(*args, **kwargs)
+        printInfo(f"{func.__name__}() finishes after {time.time() - start_time:.2f} s")
+        return ret
+
+    return clockedFn
 
 
 # <<< log utils
@@ -50,4 +54,4 @@ def printError(expr: bool, msg):
 def checkDir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-        printInfo(f"create {dir_path}")
+        printInfo(f"Create {dir_path}")
