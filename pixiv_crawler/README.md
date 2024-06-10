@@ -1,4 +1,3 @@
-
 [TOC]
 
 ## 杂项
@@ -15,7 +14,7 @@
 
   - `image_url`: "https://i.pximg.net/img-original/img/2021/10/02/18/47/29/93172108_p1.jpg"
 
-- 在`image_mix`中加入了`BVH Tree`来加速3D最近点的查询
+- 在`image_mix`中加入了`BVH Tree`来加速 3D 最近点的查询
 
 - 将从`json/html`收集`artwork`的模块整集成到了`collect_unit.py`
 
@@ -23,15 +22,13 @@
 
 - 移除了对下载数量的精准计算
 
-  以排行榜为例，单个`json`文件包含50幅作品，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
+  以排行榜为例，单个`json`文件包含 50 幅作品，只能保证下载数量为$\lceil \frac{x}{50} \rceil\times 50$
 
 - 添加了标签`selectTag()`
 
   启用`WITH_TAG`后会生成`tags.json`记录每张作品的标签
 
 - 添加了关键词下载，默认行为为按热度排序（需要高级账户，否则为默认排序）
-
-
 
 ### 主要模块
 
@@ -79,16 +76,18 @@ pixiv_crawler
   爬虫入口，收集`artwork_id`数据
 
   - `bookmark_crawler.py`
+
   - `keyword_crawler.py`
+
   - `ranking_crawler.py`
+
   - `users_crawler.py`
 
 - `downloader/`
 
   - `downloader.py`: 使用`download_image`
+
   - `download_image.py`: 根据`image_url`下载图片
-
-
 
 ### 附录
 
