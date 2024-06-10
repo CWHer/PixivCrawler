@@ -20,7 +20,7 @@ def assertError(expr: bool, msg):
 def checkDir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-        printInfo(f"Create {dir_path}")
+        printInfo(f"Create {os.path.abspath(dir_path)}")
 
 
 def logTime(func):

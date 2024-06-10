@@ -33,9 +33,10 @@ from typing import List, Optional, Set
 
 import numpy as np
 import tqdm
-from bvh_tree import BVHTree, Point
 from PIL import Image, ImageOps
-from utils import assertError, assertWarn, checkDir, logTime, printInfo
+
+from .bvh_tree import BVHTree, Point
+from .utils import assertError, assertWarn, checkDir, logTime, printInfo
 
 
 class ImageLib:
@@ -248,4 +249,4 @@ if __name__ == "__main__":
     result = createPuzzle(image_lib, args.block_size, target_image)
     target_image = Image.blend(result, target_image, 0.5) if args.soften else result
     target_image.save(args.output_file)
-    printInfo(f"Saved result to {args.output_file}")
+    printInfo(f"Saved result to {os.path.abspath(args.output_file)}")

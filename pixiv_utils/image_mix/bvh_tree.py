@@ -6,7 +6,7 @@ import random
 from collections import namedtuple
 from typing import List, Optional
 
-from utils import assertError
+from .utils import assertError
 
 Point = namedtuple("Point", ["x", "y", "z"])
 

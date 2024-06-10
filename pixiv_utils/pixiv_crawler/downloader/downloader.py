@@ -2,8 +2,9 @@ import concurrent.futures as futures
 from typing import Iterable, Set
 
 import tqdm
-from config import DOWNLOAD_CONFIG
-from utils import assertWarn, printInfo
+
+from pixiv_utils.pixiv_crawler.config import download_config
+from pixiv_utils.pixiv_crawler.utils import assertWarn, printInfo
 
 from .download_image import downloadImage
 
@@ -32,8 +33,7 @@ class Downloader:
         download_traffic = 0.0
         printInfo("===== Downloader start =====")
 
-        n_thread = DOWNLOAD_CONFIG["N_THREAD"]
-        with futures.ThreadPoolExecutor(n_thread) as executor:
+        with futures.ThreadPoolExecutor(download_config.num_threads) as executor:
             with tqdm.trange(len(self.url_group), desc="Downloading") as pbar:
                 image_size_futures = [executor.submit(downloadImage, url) for url in self.url_group]
                 for future in futures.as_completed(image_size_futures):

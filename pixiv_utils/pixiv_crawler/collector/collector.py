@@ -5,9 +5,10 @@ import os
 from typing import Dict, Iterable, List, Set
 
 import tqdm
-from config import DOWNLOAD_CONFIG, USER_CONFIG
-from downloader.downloader import Downloader
-from utils import printInfo
+
+from pixiv_utils.pixiv_crawler.config import download_config, user_config
+from pixiv_utils.pixiv_crawler.downloader import Downloader
+from pixiv_utils.pixiv_crawler.utils import printInfo
 
 from .collector_unit import collect
 from .selectors import selectPage, selectTag
@@ -34,12 +35,11 @@ class Collector:
         printInfo("===== Tag collector start =====")
 
         self.tags: Dict[str, List] = dict()
-        n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         additional_headers = {"Referer": "https://www.pixiv.net/bookmark.php?type=user"}
         collect_tag_fn = functools.partial(
             collect, selector=selectTag, additional_headers=additional_headers
         )
-        with futures.ThreadPoolExecutor(n_thread) as executor:
+        with futures.ThreadPoolExecutor(download_config.num_threads) as executor:
             with tqdm.trange(len(self.id_group), desc="Collecting tags") as pbar:
                 urls = [
                     f"https://www.pixiv.net/artworks/{illust_id}" for illust_id in self.id_group
@@ -55,7 +55,7 @@ class Collector:
                         self.tags[illust_id] = tags
                     pbar.update()
 
-        file_path = os.path.join(DOWNLOAD_CONFIG["STORE_PATH"], file_name)
+        file_path = os.path.join(download_config.store_path, file_name)
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(json.dumps(self.tags, indent=4, ensure_ascii=False))
 
@@ -66,14 +66,13 @@ class Collector:
         Collect all image ids in each artwork, and send to downloader
         NOTE: an artwork may contain multiple images
         """
-        if DOWNLOAD_CONFIG["WITH_TAG"]:
+        if download_config.with_tag:
             self.collectTags()
 
         printInfo("===== Collector start =====")
         printInfo("NOTE: An artwork may contain multiple images.")
 
-        n_thread = DOWNLOAD_CONFIG["N_THREAD"]
-        with futures.ThreadPoolExecutor(n_thread) as executor:
+        with futures.ThreadPoolExecutor(download_config.num_threads) as executor:
             with tqdm.trange(len(self.id_group), desc="Collecting urls") as pbar:
                 urls = [
                     f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=zh"
@@ -82,7 +81,7 @@ class Collector:
                 additional_headers = [
                     {
                         "Referer": f"https://www.pixiv.net/artworks/{illust_id}",
-                        "x-user-id": USER_CONFIG["USER_ID"],
+                        "x-user-id": user_config.user_id,
                     }
                     for illust_id in self.id_group
                 ]

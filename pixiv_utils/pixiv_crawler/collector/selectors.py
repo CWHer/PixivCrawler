@@ -4,7 +4,8 @@ from typing import List, Set
 
 from bs4 import BeautifulSoup
 from requests.models import Response
-from utils import writeFailLog
+
+from pixiv_utils.pixiv_crawler.utils import writeFailLog
 
 
 def selectTag(response: Response) -> List[str]:

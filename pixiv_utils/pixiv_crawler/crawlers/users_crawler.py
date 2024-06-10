@@ -1,9 +1,7 @@
-from collector.collector import Collector
-from collector.collector_unit import collect
-from collector.selectors import selectUser
-from config import USER_CONFIG
-from downloader.downloader import Downloader
-from utils import printInfo
+from pixiv_utils.pixiv_crawler.collector import Collector, collect, selectUser
+from pixiv_utils.pixiv_crawler.config import user_config
+from pixiv_utils.pixiv_crawler.downloader import Downloader
+from pixiv_utils.pixiv_crawler.utils import printInfo
 
 
 class UserCrawler:
@@ -28,8 +26,8 @@ class UserCrawler:
         url = f"https://www.pixiv.net/ajax/user/{self.artist_id}/profile/all?lang=zh"
         additional_headers = {
             "Referer": f"https://www.pixiv.net/users/{self.artist_id}/illustrations",
-            "x-user-id": USER_CONFIG["USER_ID"],
-            "COOKIE": USER_CONFIG["COOKIE"],
+            "x-user-id": user_config.user_id,
+            "COOKIE": user_config.cookie,
         }
         image_ids = collect(url, selectUser, additional_headers)
         if image_ids is not None:
