@@ -1,20 +1,22 @@
 import os
 from functools import wraps
 
+from colorama import Fore, Style
+
 
 def printInfo(msg):
-    print(f"\x1b[32;20m[INFO]:\x1b[0m {msg}")
+    print(f"{Fore.GREEN}[INFO]:{Style.RESET_ALL} {msg}")
 
 
 def assertWarn(expr: bool, msg):
     try:
-        assert expr, f"\x1b[33;20m[WARN]:\x1b[0m {msg}"
+        assert expr, f"{Fore.YELLOW}[WARN]:{Style.RESET_ALL} {msg}"
     except AssertionError as e:
         print(e)
 
 
 def assertError(expr: bool, msg):
-    assert expr, f"\x1b[31;20m[ERROR]:\x1b[0m {msg}"
+    assert expr, f"{Fore.RED}[ERROR]:{Style.RESET_ALL} {msg}"
 
 
 def checkDir(dir_path):
