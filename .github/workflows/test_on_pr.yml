@@ -7,6 +7,7 @@ on:
 
 jobs:
   tests:
+    name: Run unittest
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +25,13 @@ jobs:
 
       - name: Install the package
         run: |
-          pip install -e .
+          pip install -vvv .
+          pip show -f pixiv_utils
+          python -c "import pixiv_utils"
 
       - name: Test with unittest
+        env:
+          HTTPS_PROXY: ""
         run: |
           cd tests/
           bash run_tests.sh
