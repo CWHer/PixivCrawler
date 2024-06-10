@@ -8,15 +8,15 @@ from utils import writeFailLog
 
 
 def selectTag(response: Response) -> List[str]:
-    """[summary]
-    url: https://www.pixiv.net/artworks/xxxxxx
-    collect all image tags from (artwork.html)
+    """
+    Collect all tags from (artwork.html)
+    Sample url: https://www.pixiv.net/artworks/xxxxxx
 
     Returns:
         List[str]: tags
     """
-    result = re.search("artworks/(\d+)", response.url)
-    assert result is not None, f"bad response in selectTag for URL: {response.url}"
+    result = re.search(r"artworks/(\d+)", response.url)
+    assert result is not None, f"Bad response in selectTag for URL: {response.url}"
 
     illust_id = result.group(1)
     content = json.loads(
@@ -30,9 +30,9 @@ def selectTag(response: Response) -> List[str]:
 
 
 def selectPage(response: Response) -> Set[str]:
-    """[summary]
-    url: https://www.pixiv.net/ajax/illust/xxxx/pages?lang=zh
-    collect all image urls from (page.json)
+    """
+    Collect all image urls from (page.json)
+    Sample url: https://www.pixiv.net/ajax/illust/xxxx/pages?lang=zh
 
     Returns:
         Set[str]: urls
@@ -44,9 +44,9 @@ def selectPage(response: Response) -> Set[str]:
 
 
 def selectRanking(response: Response) -> Set[str]:
-    """[summary]
-    url: https://www.pixiv.net/ranking.php?mode=daily&date=20200801&p=1&format=json
-    collect all illust_id (image_id) from (ranking.json)
+    """
+    Collect all illust_id (image_id) from (ranking.json)
+    Sample url: https://www.pixiv.net/ranking.php?mode=daily&date=20200801&p=1&format=json
 
     Returns:
         Set[str]: illust_id (image_id)
@@ -56,9 +56,9 @@ def selectRanking(response: Response) -> Set[str]:
 
 
 def selectUser(response: Response) -> Set[str]:
-    """[summary]
-    url: https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh
-    collect all illust_id (image_id) from (user.json)
+    """
+    Collect all illust_id (image_id) from (user.json)
+    Sample url: https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh
 
     Returns:
         Set[str]: illust_id (image_id)
@@ -67,28 +67,28 @@ def selectUser(response: Response) -> Set[str]:
 
 
 def selectBookmark(response: Response) -> Set[str]:
-    """[summary]
-    url: https://www.pixiv.net/ajax/user/xxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
-    collect all illust_id (image_id) from (bookmark.json)
+    """
+    Collect all illust_id (image_id) from (bookmark.json)
+    Sample url: https://www.pixiv.net/ajax/user/xxx/illusts/bookmarks?tag=&offset=0&limit=48&rest=show&lang=zh
 
     Returns:
         Set[str]: illust_id (image_id)
     """
-    # NOTE: id of disable artwork is int (not str)
+    # NOTE: id of disabled artwork is int (not str)
     id_group: Set[str] = set()
     for artwork in response.json()["body"]["works"]:
         illust_id = artwork["id"]
         if isinstance(illust_id, str):
             id_group.add(artwork["id"])
         else:
-            writeFailLog(f"disable artwork {illust_id} \n")
+            writeFailLog(f"Disabled artwork {illust_id}.")
     return id_group
 
 
 def selectKeyword(response: Response) -> Set[str]:
-    """[summary]
-    url: https://www.pixiv.net/ajax/search/artworks/{xxxxx}?word={xxxxx}&order=popular_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=zh"
-    collect all illust_id (image_id) from (keyword.json)
+    """
+    Collect all illust_id (image_id) from (keyword.json)
+    Sample url: https://www.pixiv.net/ajax/search/artworks/{xxxxx}?word={xxxxx}&order=popular_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=zh"
 
     Returns:
         Set[str]: illust_id (image_id)

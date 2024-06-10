@@ -1,25 +1,39 @@
 import concurrent.futures as futures
+import functools
 import urllib.parse as urlparse
 from typing import Set
 
+import tqdm
 from collector.collector import Collector
 from collector.collector_unit import collect
 from collector.selectors import selectKeyword
 from config import DOWNLOAD_CONFIG, USER_CONFIG
 from downloader.downloader import Downloader
-from tqdm import tqdm
 from utils import printInfo
 
 
 class KeywordCrawler:
-    """[summary]
-    download search results of a keyword
+    """
+    Download images from search results of a given keyword
     """
 
     def __init__(
-        self, keyword: str, order: bool = False, mode: str = "safe", n_images=200, capacity=1024
+        self,
+        keyword: str,
+        order: bool = False,
+        mode: str = "safe",
+        n_images: int = 200,
+        capacity: float = 1024,
     ):
-        assert mode in ["safe", "r18", "all"]
+        """
+        Args:
+            keyword: Search keyword.
+            order: Order by popularity if True, by date if False. Defaults to False.
+            mode: Search mode. Defaults to "safe".
+            n_images: Number of images to download. Defaults to 200.
+            capacity: Flow capacity. Defaults to 1024.
+        """
+        assert mode in ["safe", "r18", "all"], f"mode {mode} not supported"
 
         self.keyword = keyword
         self.order = order
@@ -30,45 +44,54 @@ class KeywordCrawler:
         self.downloader = Downloader(capacity)
         self.collector = Collector(self.downloader)
 
-    def collect(self):
-        """[summary]
-        collect illust_id from keyword result
-        url sample: "https://www.pixiv.net/ajax/search/artworks/{xxxxx}?
-            word={xxxxx}&order=popular_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=zh"
+    def collect(self, artworks_per_json: int = 60):
+        """
+        Collect illust_id from keyword result
+
+        Sample URL: "https://www.pixiv.net/ajax/search/artworks/{xxxxx}?word={xxxxx}&order=popular_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=zh"
+
+        Args:
+            artworks_per_json: Number of artworks per json. Defaults to 60.
         """
 
-        # NOTE: each keyword.json contains 60 artworks
-        ARTWORK_PER = 60
-        n_page = (self.n_images - 1) // ARTWORK_PER + 1  # ceil
-        printInfo(f"===== start collecting {self.keyword} =====")
+        n_page = (self.n_images - 1) // artworks_per_json + 1  # ceil
+        printInfo(f"===== Start collecting {self.keyword} =====")
 
         urls: Set[str] = set()
         url = (
             "https://www.pixiv.net/ajax/search/artworks/"
-            + "{}?word={}".format(
-                urlparse.quote(self.keyword, safe="()"), urlparse.quote(self.keyword)
+            + f"{urlparse.quote(self.keyword, safe='()')}?"
+            + "&".join(
+                [
+                    f"word={urlparse.quote(self.keyword)}",
+                    f"order={'popular_d' if self.order else 'date_d'}",
+                    f"mode={self.mode}",
+                    "p={}",
+                    f"s_mode=s_tag",
+                    f"type=all",
+                    f"lang=zh",
+                ]
             )
-            + "&order={}".format("popular_d" if self.order else "date_d")
-            + f"&mode={self.mode}"
-            + "&p={}&s_mode=s_tag&type=all&lang=zh"
         )
         for i in range(n_page):
             urls.add(url.format(i + 1))
 
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
+        additional_headers = {"COOKIE": USER_CONFIG["COOKIE"]}
+        collect_keyword_fn = functools.partial(
+            collect, selector=selectKeyword, additional_headers=additional_headers
+        )
         with futures.ThreadPoolExecutor(n_thread) as executor:
-            with tqdm(total=len(urls), desc="collecting ids") as pbar:
-                additional_headers = {"COOKIE": USER_CONFIG["COOKIE"]}
-                for image_ids in executor.map(
-                    collect,
-                    zip(urls, [selectKeyword] * len(urls), [additional_headers] * len(urls)),
-                ):
+            with tqdm.trange(len(urls), desc="Collecting ids") as pbar:
+                image_ids_futures = [executor.submit(collect_keyword_fn, url) for url in urls]
+                for future in futures.as_completed(image_ids_futures):
+                    image_ids = future.result()
                     if image_ids is not None:
                         self.collector.add(image_ids)
                     pbar.update()
 
-        printInfo(f"===== collect {self.keyword} complete =====")
-        printInfo(f"downloadable artworks: {len(self.collector.id_group)}")
+        printInfo(f"===== Collect {self.keyword} complete =====")
+        printInfo(f"Number of downloadable artworks: {len(self.collector.id_group)}")
 
     def run(self):
         self.collect()

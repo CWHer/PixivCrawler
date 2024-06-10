@@ -1,8 +1,8 @@
-# Pixiv Crawler
+# Pixiv Utils
 
-![](https://img.shields.io/badge/python-3.9.6-green) ![](https://img.shields.io/badge/latest%20update-2023%2F2%2F6-green)
+![](https://img.shields.io/badge/python-3.10-green) ![](https://img.shields.io/badge/latest%20update-2024%2F6%2F10-green)
 
-一个使用`Python`实现的`Pixiv`爬虫
+`Pixiv Utils` 使用 `Python`实现，包含`Pixiv`爬虫以及马赛克拼图，支持排行榜、个人收藏、画师作品、关键词搜索等筛选功能，并提供高性能的多线程并行下载。
 
 ## Main Features
 
@@ -55,8 +55,6 @@ graph LR;
 	D-->E[end];
 ```
 
-
-
 ## 目录结构
 
 - `./image_mix`：马赛克拼图
@@ -65,20 +63,18 @@ graph LR;
 
 - `./templates`
 
-    `Pixiv`网站部分`json`, `html`的样例
+  `Pixiv`网站部分`json`, `html`的样例
 
-    说明见`./pixiv_crawler/collector/selectors.py`
-
-
-
+  说明见`./pixiv_crawler/collector/selectors.py`
 
 ## 如何使用
 
 :warning: <u>此处仅含爬虫的使用教程</u>，马赛克拼图使用教程见`./image_mix/README.md`
 
-### 1. 安装Python及其依赖库
+### 1. 安装 Python 及其依赖库
 
 - `Python >= 3.9`
+
 - `pip install -r requirements/requirements.txt`
 
 ### 2. 修改配置文件
@@ -90,9 +86,13 @@ graph LR;
   <u>该设置仅适用于抓取排行榜图片</u>
 
   - `START_DATE`: 排行榜开始日期 :warning:
+
   - `RANGE`: 日期范围 :warning:
+
   - `MODE`: 哪个类型的排行榜（参考文件中`RANKING_MODES`） :warning:
+
   - `CONTENT_MODE`: 下载插画、漫画或是全部类型的作品（参考文件中`CONTENT_MODES`） :warning:
+
   - `N_ARTWORK`: 排行榜前`k`幅作品 :warning:
 
 - `OUTPUT_CONFIG`部分
@@ -100,11 +100,13 @@ graph LR;
   该设置用于控制输出信息程度，可用于调试
 
   - `VERBOSE`: 输出最多的信息（不建议开启）
+
   - `PRINT_ERROR`: 输出遇到异常的类型（可用于调试，偶尔`TimeOut`属于正常情况）
 
 - `NETWORK_CONFIG`部分
 
   - `PROXY`: 代理设置（`Clash`无需修改，`SSR`需要修改端口号） :warning:
+
   - `HEADER`: 基础请求头，目前仅含浏览器头
 
 - `USER_CONFIG`部分
@@ -113,7 +115,7 @@ graph LR;
 
   - `COOKIE`: 配置种最关键的一项 :warning::warning::warning:
 
-    1. 打开浏览器的`DevTools`（一般为F12），切换到`Network`栏
+    1. 打开浏览器的`DevTools`（一般为 F12），切换到`Network`栏
 
     2. 访问排行榜并刷新页面，在`DevTools`中找到`ranking.php`
 
@@ -124,10 +126,15 @@ graph LR;
 - `DOWNLOAD_CONFIG`部分
 
   - `STORE_PATH`: 图片保存位置
+
   - `N_TIMES`: 下载失败后的重复请求次数
+
   - `WITH_TAG`: 是否需要抓取标签
+
   - `FAIL_DELAY`: 下载失败后延时（秒）
-  - `N_THREAD`: 并行下载的线程数量（根据CPU核数调整） :warning:
+
+  - `N_THREAD`: 并行下载的线程数量（根据 CPU 核数调整） :warning:
+
   - `THREAD_DELAY`: 每个线程启动的延时（秒）
 
 ### 3. 修改主程序
@@ -176,8 +183,13 @@ graph LR;
   `n_images`参数用于限制最大下载数量
 
   ```python
-  app = KeywordCrawler(keyword="(Lucy OR 边缘行者) AND (5000users OR 10000users)",
-                       order=False, mode=["safe", "r18", "all"][-1], n_images=20, capacity=200)
+  app = KeywordCrawler(
+      keyword="(Lucy OR 边缘行者) AND (5000users OR 10000users)",
+      order=False,
+      mode=["safe", "r18", "all"][-1],
+      n_images=20,
+      capacity=200,
+  )
   app.run()
   ```
 

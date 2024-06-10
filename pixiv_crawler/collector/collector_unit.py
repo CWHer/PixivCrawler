@@ -1,19 +1,23 @@
 import time
-from typing import Callable, Dict, Iterable, Optional, Tuple
+from typing import Callable, Dict, Iterable, Optional
 
 import requests
 from config import DOWNLOAD_CONFIG, NETWORK_CONFIG, OUTPUT_CONFIG
-from utils import printInfo, printWarn, writeFailLog
+from utils import assertWarn, printInfo, writeFailLog
 
 
-def collect(args: Tuple[str, Callable, Optional[Dict]]) -> Optional[Iterable[str]]:
-    """[summary]
-    generic metadata collector, collect metadata from templates
-        e.g.: user.json, page.json, ...
-        use different selector to select different elements
-        args: url, selector, additional_headers
+def collect(
+    url: str, selector: Callable, additional_headers: Optional[Dict]
+) -> Optional[Iterable[str]]:
     """
-    url, selector, additional_headers = args
+    Collect metadata from the specified URL.
+    NOTE: This function is used to collect metadata from templates such as user.json, page.json, etc.
+    Different selectors can be used to select different elements.
+
+    Args:
+        args (Tuple[str, Callable, Optional[Dict]]): A tuple containing the URL, a selector function, and additional headers.
+
+    """
     headers = NETWORK_CONFIG["HEADER"]
     if additional_headers is not None:
         headers.update(additional_headers)
@@ -21,7 +25,7 @@ def collect(args: Tuple[str, Callable, Optional[Dict]]) -> Optional[Iterable[str
     verbose_output = OUTPUT_CONFIG["VERBOSE"]
     error_output = OUTPUT_CONFIG["PRINT_ERROR"]
     if verbose_output:
-        printInfo(f"collecting {url}")
+        printInfo(f"Collecting {url}")
     time.sleep(DOWNLOAD_CONFIG["THREAD_DELAY"])
 
     for i in range(DOWNLOAD_CONFIG["N_TIMES"]):
@@ -30,17 +34,17 @@ def collect(args: Tuple[str, Callable, Optional[Dict]]) -> Optional[Iterable[str
                 url, headers=headers, proxies=NETWORK_CONFIG["PROXY"], timeout=4
             )
 
-            if response.status_code == 200:
+            if response.status_code == requests.status_codes.codes.ok:
                 id_group = selector(response)
                 if verbose_output:
                     printInfo(f"{url} complete")
                 return id_group
 
         except Exception as e:
-            printWarn(error_output, e)
-            printWarn(error_output, f"This is {i} attempt to collect {url}")
+            assertWarn(not error_output, e)
+            assertWarn(not error_output, f"This is {i} attempt to collect {url}")
 
             time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
 
-    printWarn(error_output, f"fail to collect {url}")
-    writeFailLog(f"fail to collect {url} \n")
+    assertWarn(not error_output, f"Fail to collect {url}")
+    writeFailLog(f"Fail to collect {url}.")

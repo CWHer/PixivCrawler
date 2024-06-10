@@ -6,7 +6,7 @@
 test.py
 
 # fail log
-fail_log.txt
+failures.log
 
 # image save path
 images/

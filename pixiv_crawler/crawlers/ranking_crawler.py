@@ -3,60 +3,62 @@ import datetime
 import re
 from typing import Set
 
+import tqdm
 from collector.collector import Collector
 from collector.collector_unit import collect
 from collector.selectors import selectRanking
 from config import DOWNLOAD_CONFIG, MODE_CONFIG, USER_CONFIG
 from downloader.downloader import Downloader
-from tqdm import tqdm
 from utils import printInfo
 
 
 class RankingCrawler:
-    def __init__(self, capacity=1024):
-        """[summary]
-        download artworks from ranking
+    def __init__(self, capacity: float = 1024):
+        """
+        RankingCrawler download artworks from ranking
 
         Args:
-            capacity (int, optional): flow capacity (MB)
+            capacity (float, optional): The flow capacity in MB. Defaults to 1024.
         """
         self.date = MODE_CONFIG["START_DATE"]
         self.range = MODE_CONFIG["RANGE"]
         self.mode = MODE_CONFIG["MODE"]
-        assert self.mode in MODE_CONFIG["RANKING_MODES"]
+        assert self.mode in MODE_CONFIG["RANKING_MODES"], f"Invalid mode: {self.mode}"
         self.content = MODE_CONFIG["CONTENT_MODE"]
 
         # NOTE:
-        #   1. url sample: "https://www.pixiv.net/ranking.php?
-        #       mode=daily&content=all&date=20200801&p=1&format=json"
-        #      url sample: "https://www.pixiv.net/ranking.php?
-        #       mode=daily&content=illust&date=20220801&p=2&format=json"
+        #   1. url sample: "https://www.pixiv.net/ranking.php?mode=daily&content=all&date=20200801&p=1&format=json"
+        #      url sample: "https://www.pixiv.net/ranking.php?mode=daily&content=illust&date=20220801&p=2&format=json"
         #   2. ref url sample: "https://www.pixiv.net/ranking.php?mode=daily&date=20200801"
-        self.url = (
-            "https://www.pixiv.net/ranking.php?"
-            + f"mode={self.mode}"
-            + f"&content={self.content}"
-            + "&date={}&p={}&format=json"
+        self.url_template = "https://www.pixiv.net/ranking.php?" + "&".join(
+            [
+                f"mode={self.mode}",
+                f"content={self.content}",
+                "date={}",
+                "p={}",
+                "format=json",
+            ]
         )
 
         self.downloader = Downloader(capacity)
         self.collector = Collector(self.downloader)
 
-    def __collect(self):
-        """[summary]
-        collect illust_id from ranking
+    def _collect(self, artworks_per_json: int = 50):
         """
-        # each ranking.json contains 50 artworks
-        ARTWORK_PER = 50
-        n_page = (MODE_CONFIG["N_ARTWORK"] - 1) // ARTWORK_PER + 1  # ceil
+        Collect illust_id from ranking
+
+        Args:
+            artworks_per_json: Number of artworks per ranking.json. Defaults to 50.
+        """
+        num_page = (MODE_CONFIG["N_ARTWORK"] - 1) // artworks_per_json + 1  # ceil
 
         def addDate(current: datetime.date, days):
             return current + datetime.timedelta(days)
 
         content = f"{self.mode}:{self.content}"
-        printInfo(f"===== start collecting {content} ranking =====")
+        printInfo(f"===== Start collecting {content} ranking =====")
         printInfo(
-            "from {} to {}".format(
+            "From {} to {}".format(
                 self.date.strftime("%Y-%m-%d"),
                 addDate(self.date, self.range - 1).strftime("%Y-%m-%d"),
             )
@@ -64,13 +66,13 @@ class RankingCrawler:
 
         urls: Set[str] = set()
         for _ in range(self.range):
-            for i in range(n_page):
-                urls.add(self.url.format(self.date.strftime("%Y%m%d"), i + 1))
+            for i in range(num_page):
+                urls.add(self.url_template.format(self.date.strftime("%Y%m%d"), i + 1))
             self.date = addDate(self.date, 1)
 
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
-            with tqdm(total=len(urls), desc="collecting ids") as pbar:
+            with tqdm.trange(len(urls), desc="Collecting image ids") as pbar:
                 additional_headers = [
                     {
                         "Referer": re.search("(.*)&p", url).group(1),
@@ -79,16 +81,19 @@ class RankingCrawler:
                     }
                     for url in urls
                 ]
-                for image_ids in executor.map(
-                    collect, zip(urls, [selectRanking] * len(urls), additional_headers)
-                ):
+                image_ids_futures = [
+                    executor.submit(collect, url, selectRanking, additional_header)
+                    for url, additional_header in zip(urls, additional_headers)
+                ]
+                for future in futures.as_completed(image_ids_futures):
+                    image_ids = future.result()
                     if image_ids is not None:
                         self.collector.add(image_ids)
                     pbar.update()
 
-        printInfo(f"===== collect {content} ranking complete =====")
+        printInfo(f"===== Collect {content} ranking complete =====")
 
     def run(self) -> float:
-        self.__collect()
+        self._collect()
         self.collector.collect()
         return self.downloader.download()

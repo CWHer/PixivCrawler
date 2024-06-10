@@ -1,19 +1,26 @@
 import concurrent.futures as futures
 from typing import Iterable, Set
 
+import tqdm
 from config import DOWNLOAD_CONFIG
-from tqdm import tqdm
-from utils import printInfo
+from utils import assertWarn, printInfo
 
 from .download_image import downloadImage
 
 
 class Downloader:
-    """[summary]
-    download controller
+    """
+    Downloader download images from urls
     """
 
-    def __init__(self, capacity):
+    def __init__(self, capacity: float):
+        """
+        Initialize the Downloader object.
+
+        Args:
+            capacity (float): The download capacity in MB.
+
+        """
         self.url_group: Set[str] = set()
         self.capacity = capacity
 
@@ -22,19 +29,22 @@ class Downloader:
             self.url_group.add(url)
 
     def download(self):
-        flow_size = 0.0
-        printInfo("===== downloader start =====")
+        download_traffic = 0.0
+        printInfo("===== Downloader start =====")
 
         n_thread = DOWNLOAD_CONFIG["N_THREAD"]
         with futures.ThreadPoolExecutor(n_thread) as executor:
-            with tqdm(total=len(self.url_group), desc="downloading") as pbar:
-                for image_size in executor.map(downloadImage, self.url_group):
-                    flow_size += image_size
+            with tqdm.trange(len(self.url_group), desc="Downloading") as pbar:
+                image_size_futures = [executor.submit(downloadImage, url) for url in self.url_group]
+                for future in futures.as_completed(image_size_futures):
+                    download_traffic += future.result()
+                    pbar.set_description(f"Downloading {download_traffic:.2f} MB")
                     pbar.update()
-                    pbar.set_description(f"downloading / flow {flow_size:.2f}MB")
-                    if flow_size > self.capacity:
+
+                    if download_traffic > self.capacity:
                         executor.shutdown(wait=False, cancel_futures=True)
+                        assertWarn(False, "Download capacity reached!")
                         break
 
-        printInfo("===== downloader complete =====")
-        return flow_size
+        printInfo("===== Downloading complete =====")
+        return download_traffic
