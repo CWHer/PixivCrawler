@@ -7,7 +7,7 @@ import tqdm
 from collector.collector import Collector
 from collector.collector_unit import collect
 from collector.selectors import selectRanking
-from config import DOWNLOAD_CONFIG, MODE_CONFIG, USER_CONFIG
+from config import download_config, ranking_config, user_config
 from downloader.downloader import Downloader
 from utils import printInfo
 
@@ -20,11 +20,12 @@ class RankingCrawler:
         Args:
             capacity (float, optional): The flow capacity in MB. Defaults to 1024.
         """
-        self.date = MODE_CONFIG["START_DATE"]
-        self.range = MODE_CONFIG["RANGE"]
-        self.mode = MODE_CONFIG["MODE"]
-        assert self.mode in MODE_CONFIG["RANKING_MODES"], f"Invalid mode: {self.mode}"
-        self.content = MODE_CONFIG["CONTENT_MODE"]
+        self.date = ranking_config.start_date
+        self.range = ranking_config.range
+        self.mode = ranking_config.mode
+        assert self.mode in ranking_config.ranking_modes, f"Invalid mode: {self.mode}"
+        self.content = ranking_config.content_mode
+        assert self.content in ranking_config.content_modes, f"Invalid content mode: {self.content}"
 
         # NOTE:
         #   1. url sample: "https://www.pixiv.net/ranking.php?mode=daily&content=all&date=20200801&p=1&format=json"
@@ -50,7 +51,7 @@ class RankingCrawler:
         Args:
             artworks_per_json: Number of artworks per ranking.json. Defaults to 50.
         """
-        num_page = (MODE_CONFIG["N_ARTWORK"] - 1) // artworks_per_json + 1  # ceil
+        num_page = (ranking_config.num_artwork - 1) // artworks_per_json + 1  # ceil
 
         def addDate(current: datetime.date, days):
             return current + datetime.timedelta(days)
@@ -70,14 +71,13 @@ class RankingCrawler:
                 urls.add(self.url_template.format(self.date.strftime("%Y%m%d"), i + 1))
             self.date = addDate(self.date, 1)
 
-        n_thread = DOWNLOAD_CONFIG["N_THREAD"]
-        with futures.ThreadPoolExecutor(n_thread) as executor:
+        with futures.ThreadPoolExecutor(download_config.num_threads) as executor:
             with tqdm.trange(len(urls), desc="Collecting image ids") as pbar:
                 additional_headers = [
                     {
                         "Referer": re.search("(.*)&p", url).group(1),
                         "x-requested-with": "XMLHttpRequest",
-                        "COOKIE": USER_CONFIG["COOKIE"],
+                        "COOKIE": user_config.cookie,
                     }
                     for url in urls
                 ]

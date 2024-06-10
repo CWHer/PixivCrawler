@@ -7,7 +7,7 @@ import tqdm
 from collector.collector import Collector
 from collector.collector_unit import collect
 from collector.selectors import selectKeyword
-from config import DOWNLOAD_CONFIG, USER_CONFIG
+from config import download_config, user_config
 from downloader.downloader import Downloader
 from utils import printInfo
 
@@ -76,12 +76,11 @@ class KeywordCrawler:
         for i in range(n_page):
             urls.add(url.format(i + 1))
 
-        n_thread = DOWNLOAD_CONFIG["N_THREAD"]
-        additional_headers = {"COOKIE": USER_CONFIG["COOKIE"]}
+        additional_headers = {"COOKIE": user_config.cookie}
         collect_keyword_fn = functools.partial(
             collect, selector=selectKeyword, additional_headers=additional_headers
         )
-        with futures.ThreadPoolExecutor(n_thread) as executor:
+        with futures.ThreadPoolExecutor(download_config.num_threads) as executor:
             with tqdm.trange(len(urls), desc="Collecting ids") as pbar:
                 image_ids_futures = [executor.submit(collect_keyword_fn, url) for url in urls]
                 for future in futures.as_completed(image_ids_futures):

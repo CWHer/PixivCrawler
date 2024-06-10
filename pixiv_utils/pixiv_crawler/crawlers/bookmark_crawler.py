@@ -8,7 +8,7 @@ import tqdm
 from collector.collector import Collector
 from collector.collector_unit import collect
 from collector.selectors import selectBookmark
-from config import DOWNLOAD_CONFIG, NETWORK_CONFIG, OUTPUT_CONFIG, USER_CONFIG
+from config import debug_config, download_config, network_config, user_config
 from downloader.downloader import Downloader
 from utils import assertError, assertWarn, printInfo
 
@@ -25,7 +25,7 @@ class BookmarkCrawler:
             capacity: Flow capacity. Defaults to 1024.
         """
         self.n_images = n_images
-        self.uid = USER_CONFIG["USER_ID"]
+        self.uid = user_config.user_id
         self.user_url = f"https://www.pixiv.net/ajax/user/{self.uid}/illusts"
 
         self.downloader = Downloader(capacity)
@@ -40,13 +40,15 @@ class BookmarkCrawler:
         url = self.user_url + "/bookmark/tags?lang=zh"
         printInfo("===== Requesting bookmark count =====")
 
-        headers = {"COOKIE": USER_CONFIG["COOKIE"]}
-        headers.update(NETWORK_CONFIG["HEADER"])
-        error_output = OUTPUT_CONFIG["PRINT_ERROR"]
-        for i in range(DOWNLOAD_CONFIG["N_TIMES"]):
+        headers = {"COOKIE": user_config.cookie}
+        headers.update(network_config.header)
+        for i in range(download_config.retry_times):
             try:
                 response = requests.get(
-                    url, headers=headers, proxies=NETWORK_CONFIG["PROXY"], timeout=4
+                    url,
+                    headers=headers,
+                    proxies=network_config.proxy,
+                    timeout=network_config.timeout,
                 )
 
                 if response.status_code == requests.codes.ok:
@@ -57,10 +59,12 @@ class BookmarkCrawler:
                     return
 
             except Exception as e:
-                assertWarn(not error_output, e)
-                assertWarn(not error_output, f"This is {i} attempt to request bookmark count")
+                assertWarn(not debug_config.show_error, e)
+                assertWarn(
+                    not debug_config.show_error, f"This is {i} attempt to request bookmark count"
+                )
 
-                time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
+                time.sleep(download_config.fail_delay)
 
         assertWarn(False, "Please check your cookie configuration")
         assertError(False, "===== Fail to get bookmark count =====")
@@ -96,12 +100,11 @@ class BookmarkCrawler:
                 )
             )
 
-        n_thread = DOWNLOAD_CONFIG["N_THREAD"]
-        additional_headers = {"COOKIE": USER_CONFIG["COOKIE"]}
+        additional_headers = {"COOKIE": user_config.cookie}
         collect_bookmark_fn = functools.partial(
             collect, selector=selectBookmark, additional_headers=additional_headers
         )
-        with futures.ThreadPoolExecutor(n_thread) as executor:
+        with futures.ThreadPoolExecutor(download_config.num_threads) as executor:
             with tqdm.trange(len(urls), desc="Collecting ids") as pbar:
                 image_ids_futures = [executor.submit(collect_bookmark_fn, url) for url in urls]
                 for future in futures.as_completed(image_ids_futures):

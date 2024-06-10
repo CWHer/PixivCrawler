@@ -2,7 +2,7 @@ import time
 from typing import Callable, Dict, Iterable, Optional
 
 import requests
-from config import DOWNLOAD_CONFIG, NETWORK_CONFIG, OUTPUT_CONFIG
+from config import debug_config, download_config, network_config
 from utils import assertWarn, printInfo, writeFailLog
 
 
@@ -18,33 +18,31 @@ def collect(
         args (Tuple[str, Callable, Optional[Dict]]): A tuple containing the URL, a selector function, and additional headers.
 
     """
-    headers = NETWORK_CONFIG["HEADER"]
+    headers = network_config.header
     if additional_headers is not None:
         headers.update(additional_headers)
 
-    verbose_output = OUTPUT_CONFIG["VERBOSE"]
-    error_output = OUTPUT_CONFIG["PRINT_ERROR"]
-    if verbose_output:
+    if debug_config.verbose:
         printInfo(f"Collecting {url}")
-    time.sleep(DOWNLOAD_CONFIG["THREAD_DELAY"])
+    time.sleep(download_config.thread_delay)
 
-    for i in range(DOWNLOAD_CONFIG["N_TIMES"]):
+    for i in range(download_config.retry_times):
         try:
             response = requests.get(
-                url, headers=headers, proxies=NETWORK_CONFIG["PROXY"], timeout=4
+                url, headers=headers, proxies=network_config.proxy, timeout=network_config.timeout
             )
 
             if response.status_code == requests.status_codes.codes.ok:
                 id_group = selector(response)
-                if verbose_output:
+                if debug_config.verbose:
                     printInfo(f"{url} complete")
                 return id_group
 
         except Exception as e:
-            assertWarn(not error_output, e)
-            assertWarn(not error_output, f"This is {i} attempt to collect {url}")
+            assertWarn(not debug_config.show_error, e)
+            assertWarn(not debug_config.show_error, f"This is {i} attempt to collect {url}")
 
-            time.sleep(DOWNLOAD_CONFIG["FAIL_DELAY"])
+            time.sleep(download_config.fail_delay)
 
-    assertWarn(not error_output, f"Fail to collect {url}")
+    assertWarn(not debug_config.show_error, f"Fail to collect {url}")
     writeFailLog(f"Fail to collect {url}.")

@@ -1,4 +1,4 @@
-from config import DOWNLOAD_CONFIG
+from config import displayAllConfig, download_config, user_config
 from crawlers.bookmark_crawler import BookmarkCrawler
 from crawlers.keyword_crawler import KeywordCrawler
 from crawlers.ranking_crawler import RankingCrawler
@@ -6,7 +6,10 @@ from crawlers.users_crawler import UserCrawler
 from utils import checkDir
 
 if __name__ == "__main__":
-    checkDir(DOWNLOAD_CONFIG["STORE_PATH"])
+    user_config.user_id = "[TODO]: Your user_id here"
+    user_config.cookie = "[TODO]: Your cookie here"
+    displayAllConfig()
+    checkDir(download_config.store_path)
 
     # Case 1: (require cookie for R18 images !!!)
     #   Download artworks from rankings
