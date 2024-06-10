@@ -31,4 +31,5 @@ jobs:
 
       - name: Test with unittest
         run: |
-          bash tests/run_tests.sh
+          cd tests/
+          bash run_tests.sh
