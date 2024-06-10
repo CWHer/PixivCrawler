@@ -1,4 +1,4 @@
-name: post-commit
+name: Post commit
 
 on:
   pull_request:
