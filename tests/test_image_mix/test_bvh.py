@@ -2,7 +2,7 @@ import math
 import random
 import unittest
 
-from bvh_tree import Box, BVHTree, Point
+from pixiv_utils.image_mix.bvh_tree import Box, BVHTree, Point
 
 
 class BVHTreeTests(unittest.TestCase):
