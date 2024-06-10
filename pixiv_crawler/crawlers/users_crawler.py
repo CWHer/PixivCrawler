@@ -7,13 +7,18 @@ from utils import printInfo
 
 
 class UserCrawler:
-    """[summary]
-    collect all artworks from single artist
+    """
+    Collect all artworks from a single artist
 
-    NOTE: url sample: "https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh"
+    Sample URL: "https://www.pixiv.net/ajax/user/23945843/profile/all?lang=zh"
     """
 
-    def __init__(self, artist_id, capacity=1024):
+    def __init__(self, artist_id: str, capacity: float = 1024):
+        """
+        Args:
+            artist_id: Artist's ID.
+            capacity: Flow capacity. Defaults to 1024.
+        """
         self.artist_id = artist_id
 
         self.downloader = Downloader(capacity)
@@ -26,10 +31,10 @@ class UserCrawler:
             "x-user-id": USER_CONFIG["USER_ID"],
             "COOKIE": USER_CONFIG["COOKIE"],
         }
-        image_ids = collect((url, selectUser, additional_headers))
+        image_ids = collect(url, selectUser, additional_headers)
         if image_ids is not None:
             self.collector.add(image_ids)
-        printInfo(f"===== collect user {self.artist_id} complete =====")
+        printInfo(f"===== Collect user {self.artist_id} complete =====")
 
     def run(self):
         self.collect()
