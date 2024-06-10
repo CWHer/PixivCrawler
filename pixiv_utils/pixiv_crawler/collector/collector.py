@@ -5,9 +5,10 @@ import os
 from typing import Dict, Iterable, List, Set
 
 import tqdm
-from config import download_config, user_config
-from downloader.downloader import Downloader
-from utils import printInfo
+
+from pixiv_utils.pixiv_crawler.config import download_config, user_config
+from pixiv_utils.pixiv_crawler.downloader import Downloader
+from pixiv_utils.pixiv_crawler.utils import printInfo
 
 from .collector_unit import collect
 from .selectors import selectPage, selectTag

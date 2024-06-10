@@ -2,8 +2,9 @@ import time
 from typing import Callable, Dict, Iterable, Optional
 
 import requests
-from config import debug_config, download_config, network_config
-from utils import assertWarn, printInfo, writeFailLog
+
+from pixiv_utils.pixiv_crawler.config import debug_config, download_config, network_config
+from pixiv_utils.pixiv_crawler.utils import assertWarn, printInfo, writeFailLog
 
 
 def collect(

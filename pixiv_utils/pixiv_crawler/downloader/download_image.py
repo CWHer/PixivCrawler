@@ -3,8 +3,9 @@ import re
 import time
 
 import requests
-from config import debug_config, download_config, network_config
-from utils import assertError, assertWarn, printInfo, writeFailLog
+
+from pixiv_utils.pixiv_crawler.config import debug_config, download_config, network_config
+from pixiv_utils.pixiv_crawler.utils import assertError, assertWarn, printInfo, writeFailLog
 
 
 def downloadImage(url: str, download_time: float = 10) -> float:

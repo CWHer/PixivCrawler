@@ -2,8 +2,9 @@ import concurrent.futures as futures
 from typing import Iterable, Set
 
 import tqdm
-from config import download_config
-from utils import assertWarn, printInfo
+
+from pixiv_utils.pixiv_crawler.config import download_config
+from pixiv_utils.pixiv_crawler.utils import assertWarn, printInfo
 
 from .download_image import downloadImage
 

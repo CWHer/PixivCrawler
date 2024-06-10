@@ -5,12 +5,16 @@ from typing import Set
 
 import requests
 import tqdm
-from collector.collector import Collector
-from collector.collector_unit import collect
-from collector.selectors import selectBookmark
-from config import debug_config, download_config, network_config, user_config
-from downloader.downloader import Downloader
-from utils import assertError, assertWarn, printInfo
+
+from pixiv_utils.pixiv_crawler.collector import Collector, collect, selectBookmark
+from pixiv_utils.pixiv_crawler.config import (
+    debug_config,
+    download_config,
+    network_config,
+    user_config,
+)
+from pixiv_utils.pixiv_crawler.downloader import Downloader
+from pixiv_utils.pixiv_crawler.utils import assertError, assertWarn, printInfo
 
 
 class BookmarkCrawler:

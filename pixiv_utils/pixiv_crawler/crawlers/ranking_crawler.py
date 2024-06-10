@@ -4,12 +4,11 @@ import re
 from typing import Set
 
 import tqdm
-from collector.collector import Collector
-from collector.collector_unit import collect
-from collector.selectors import selectRanking
-from config import download_config, ranking_config, user_config
-from downloader.downloader import Downloader
-from utils import printInfo
+
+from pixiv_utils.pixiv_crawler.collector import Collector, collect, selectRanking
+from pixiv_utils.pixiv_crawler.config import download_config, ranking_config, user_config
+from pixiv_utils.pixiv_crawler.downloader import Downloader
+from pixiv_utils.pixiv_crawler.utils import printInfo
 
 
 class RankingCrawler:

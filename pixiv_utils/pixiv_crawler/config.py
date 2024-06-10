@@ -3,7 +3,7 @@ import datetime
 import pprint
 from typing import Dict, Tuple
 
-from utils import printInfo
+from .utils import printInfo
 
 
 @dataclasses.dataclass
