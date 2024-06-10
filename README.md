@@ -1,6 +1,8 @@
 # Pixiv Utils
 
-![](https://img.shields.io/badge/python-3.10-green) ![](https://img.shields.io/badge/latest%20update-2024%2F6%2F10-green)
+[![Daily test](https://github.com/CWHer/PixivCrawler/actions/workflows/test_on_schedule.yml/badge.svg)](https://github.com/CWHer/PixivCrawler/actions/workflows/test_on_schedule.yml)
+![](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-green)
+![](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-blue)
 
 `Pixiv Utils` 使用 `Python`实现，包含`Pixiv`爬虫以及马赛克拼图，支持排行榜、个人收藏、画师作品、关键词搜索等筛选功能，并提供高性能的多线程并行下载。
 

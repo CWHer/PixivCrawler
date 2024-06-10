@@ -12,6 +12,7 @@ from pixiv_utils.pixiv_crawler import (
 )
 
 
+@unittest.skipIf(os.getenv("PIXIV_COOKIE") is None or os.getenv("PIXIV_UID") is None, "No cookie")
 class TestBookmarkCrawler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -22,9 +23,6 @@ class TestBookmarkCrawler(unittest.TestCase):
     def tearDownClass(cls) -> None:
         shutil.rmtree(download_config.store_path)
 
-    @unittest.skipIf(
-        os.getenv("PIXIV_COOKIE") is None or os.getenv("PIXIV_UID") is None, "No cookie"
-    )
     def test_run(self):
         debug_config.show_error = True
         proxy = os.getenv("https_proxy") or os.getenv("HTTPS_PROXY")

@@ -1,0 +1,42 @@
+name: Test on schedule
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  tests:
+    name: Run comprehensive tests
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/requirements.txt
+
+      - name: Install the package
+        run: |
+          pip install .
+          pip show -f pixiv_utils
+
+      - name: Test with unittest
+        env:
+          HTTPS_PROXY: ""
+        run: |
+          cd tests/
+          bash run_tests.sh
