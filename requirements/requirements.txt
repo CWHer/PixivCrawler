@@ -1,5 +1,7 @@
 beautifulsoup4>=4.12
+colorama>=0.4
 numpy>=1.26
 Pillow>=10.3
 Requests>=2.32
+setuptools>=69.5
 tqdm>=4.64
