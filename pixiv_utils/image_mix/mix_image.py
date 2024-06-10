@@ -33,9 +33,10 @@ from typing import List, Optional, Set
 
 import numpy as np
 import tqdm
-from bvh_tree import BVHTree, Point
 from PIL import Image, ImageOps
-from utils import assertError, assertWarn, checkDir, logTime, printInfo
+
+from .bvh_tree import BVHTree, Point
+from .utils import assertError, assertWarn, checkDir, logTime, printInfo
 
 
 class ImageLib:
