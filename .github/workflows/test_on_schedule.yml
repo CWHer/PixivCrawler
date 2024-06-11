@@ -37,6 +37,7 @@ jobs:
       - name: Test with unittest
         env:
           HTTPS_PROXY: ""
+          PYTHONIOENCODING: "utf-8"
         run: |
           cd tests/
           bash run_tests.sh
