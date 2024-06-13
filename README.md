@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-green)
 ![](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-blue)'
 
-This Chinese version of README can be found [here](./README_CN.md).
+The Chinese version of README can be found [here](./README_CN.md).
 
 ## About
 
