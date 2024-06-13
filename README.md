@@ -242,6 +242,8 @@ The configurations locate at [`config.py`](./pixiv_utils/pixiv_crawler/config.py
 
 - `KeywordCrawler`
 
+  **NOTE:** Popularity sorting requires a `premium` account.
+
   ```python
   """
   Download search results of a keyword (sorted by popularity if order=True)

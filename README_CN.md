@@ -187,7 +187,7 @@ if __name__ == "__main__":
 
 ### 创建爬虫实例
 
-- `RankingCrawler`
+- `RankingCrawler`: 下载排行榜作品
 
   ```python
   """
@@ -202,7 +202,7 @@ if __name__ == "__main__":
   app.run()
   ```
 
-- `BookmarkCrawler`
+- `BookmarkCrawler`: 下载个人公开收藏的作品
 
   ```python
   """
@@ -218,7 +218,7 @@ if __name__ == "__main__":
   app.run()
   ```
 
-- `UserCrawler`
+- `UserCrawler`: 下载某位画师的作品
 
   ```python
   """
@@ -234,7 +234,9 @@ if __name__ == "__main__":
   app.run()
   ```
 
-- `KeywordCrawler`
+- `KeywordCrawler`: 下载某个关键词的作品
+
+  **注意：** 按照热门度排序需要 `premium` 账户。
 
   ```python
   """
