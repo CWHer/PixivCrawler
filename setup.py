@@ -13,8 +13,22 @@ def fetchRequirements(path: str) -> List[str]:
     Returns:
         The lines in the requirements file.
     """
-    with open(path, "r") as fd:
-        return [r.strip() for r in fd.readlines()]
+    with open(path, "r") as f:
+        return [r.strip() for r in f.readlines()]
+
+
+def fetchReadme(path: str) -> str:
+    """
+    This function reads the README file.
+
+    Args:
+        path (str): the path to the README file.
+
+    Returns:
+        The content in the README file.
+    """
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 setuptools.setup(
@@ -23,8 +37,18 @@ setuptools.setup(
     author="Wenhao Chen",
     author_email="cwher@outlook.com",
     description="Pixiv Utils implemented in Python, including Pixiv crawler and mosaic puzzles, support for rankings, personal favorites, artist works, keyword search and other filtering functions, and provide high-performance multi-threaded parallel download.",
+    long_description=fetchReadme("README.md"),
+    long_description_content_type="text/markdown",
     url="https://github.com/CWHer/PixivCrawler",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(
+        exclude=(
+            "docs",
+            "tests",
+            "requirements",
+            "*.egg-info",
+        ),
+    ),
+    py_modules=["tutorial"],
     install_requires=fetchRequirements("requirements/requirements.txt"),
     python_requires=">=3.9",
     classifiers=[
