@@ -27,7 +27,7 @@ def downloadImage(url: str, download_time: float = 10) -> float:
     assertError(result is not None, "Bad url in image downloader")
     image_id = result.group(1)
     headers = {"Referer": f"https://www.pixiv.net/artworks/{image_id}"}
-    headers.update(network_config.header)
+    headers.update(network_config.headers)
 
     if debug_config.verbose:
         printInfo(f"downloading {image_name}")
@@ -44,7 +44,7 @@ def downloadImage(url: str, download_time: float = 10) -> float:
                 url,
                 headers=headers,
                 proxies=network_config.proxy,
-                timeout=(network_config.timeout, download_time),
+                timeout=(download_config.timeout, download_time),
             )
 
             if response.status_code == requests.status_codes.codes.ok:

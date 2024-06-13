@@ -88,6 +88,7 @@ def downloadKeyword():
     Support advanced search, e.g. "(Lucy OR 边缘行者) AND (5000users OR 10000users)", refer to https://www.pixiv.help/hc/en-us/articles/235646387-I-would-like-to-know-how-to-search-for-content-on-pixiv
 
     NOTE: Require cookie for R18 images!
+    NOTE: Require premium account for popularity sorting!
 
     Args:
         keyword (str): search keyword
