@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
 ### Learn about the configurations
 
-The configurations locate at [config.py](./pixiv_utils/pixiv_crawler/config.py), which contains several items that should potentially be modified, denoted by :warning:. You can simply import these configurations, modify them like the example above, and use `displayAllConfig()` to check if they are correct.
+The configurations locate at [`config.py`](./pixiv_utils/pixiv_crawler/config.py), which contains several items that should potentially be modified, denoted by :warning:. You can simply import these configurations, modify them like the example above, and use `displayAllConfig()` to check if they are correct.
 
 - `RankingConfig`
 
@@ -159,7 +159,7 @@ The configurations locate at [config.py](./pixiv_utils/pixiv_crawler/config.py),
 
        ![](./assets/cookie.png)
 
-       Copy all characters after `cookie:` (as shown in the red box) to the `COOKIE` configuration :warning:
+       Copy all characters after `cookie:` (as shown in the red box) to the `COOKIE` configuration
 
 - `DownloadConfig`
 
