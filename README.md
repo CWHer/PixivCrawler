@@ -2,189 +2,261 @@
 
 [![Daily test](https://github.com/CWHer/PixivCrawler/actions/workflows/test_on_schedule.yml/badge.svg)](https://github.com/CWHer/PixivCrawler/actions/workflows/test_on_schedule.yml)
 ![](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-green)
-![](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-blue)
+![](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-blue)'
 
-`Pixiv Utils` 使用 `Python`实现，包含`Pixiv`爬虫以及马赛克拼图，支持排行榜、个人收藏、画师作品、关键词搜索等筛选功能，并提供高性能的多线程并行下载。
+This Chinese version of README can be found [here](./README_CN.md).
 
-## Main Features
+## About
 
-运行时输出参考下图（2x faster）
+Pixiv Utils implemented in Python, including **Pixiv Crawler** and **Mosaic Puzzles**, support for rankings, personal bookmarks, artist works and keyword search for personalized filtering, and provide high-performance multi-threaded parallel download. 🤗
 
-![](/assets/run.gif)
+This GIF depicts a sample run in normal speed,
 
-**支持功能**
+![](./assets/procedure.gif)
 
-- 每日/月/年的不同排行榜
+## Features
 
-- 个人收藏
+- **Pixiv Crawler**
 
-- 特定画师的作品
+  - Ranking lists for daily/monthly/yearly...
 
-- 特定关键词的作品（支持高级关键词搜索，例如`(Lucy OR 边缘行者) AND (5000users OR 10000users)`）
+  - Personal bookmarks
 
-- 马赛克拼图（`image_mix`）
+  - Specific artist's artworks
+
+  - Specific keyword's artworks (support advanced keyword search, e.g., `(Lucy OR 边缘行者) AND (5000users OR 10000users)`)
+
+  - Parallel download with multi-threading
+
+- **Mosaic Puzzles**
 
   ![](./assets/mixture.png)
 
-**设计思路**
+## Installation
 
-- Notations
+### Install from PyPI (Recommended)
 
-  - `artwork_id`: "93172108"
-
-  - `artwork_url`: https://www.pixiv.net/artworks/93172108
-
-    每个`artwork`可能包含多张图片
-
-  - `image_url`: "https://i.pximg.net/img-original/img/2021/10/02/18/47/29/93172108_p1.jpg"
-
-- 采用流水线设计
-
-  不同阶段分别收集`artwork url`, `image url`，并传入下一阶段使用
-
-- 模块化程度高，耦合度低
-
-  例如已有`image url`（e.g., 配合[Pxer](https://github.com/FoXZilla/Pxer)使用），则可以考虑直接传入`downloader`下载
-
-```mermaid
-graph LR;
-	F[start]-->A;
-	A<==run parallelly==>A;
-	A[crawler]--send artwork_url-->B[collector];
-	B<==run parallelly==>B;
-	B--send image url-->D[downloader];
-	D==run parallelly==>D;
-	D-->E[end];
+```bash
+pip install pixiv-utils
 ```
 
-## 目录结构
+### Install from source
 
-- `./image_mix`：马赛克拼图
+```bash
+git clone git@github.com:CWHer/PixivCrawler.git
+pip install -v .
+```
 
-- `./pixiv_crawler`：`Pixiv`爬虫
+## Quick Start
 
-- `./templates`
+Please refer to [tutorial](./tutorial.py) for comprehensive instructions.
 
-  `Pixiv`网站部分`json`, `html`的样例
+Note: This section only contains the usage of **Pixiv Crawler**. For the usage of **Mosaic Puzzles**, please refer to [Mosaic Puzzles Doc](./docs/IMAGE_MIX.md).
 
-  说明见`./pixiv_crawler/collector/selectors.py`
+```python
+import datetime
 
-## 如何使用
+from pixiv_utils.pixiv_crawler import (
+    RankingCrawler,
+    checkDir,
+    displayAllConfig,
+    download_config,
+    network_config,
+    ranking_config,
+    user_config,
+)
 
-:warning: <u>此处仅含爬虫的使用教程</u>，马赛克拼图使用教程见`./image_mix/README.md`
+if __name__ == "__main__":
+    network_config.proxy["https"] = "127.0.0.1:7890"
+    user_config.user_id = ""
+    user_config.cookie = ""
+    download_config.with_tag = False
+    ranking_config.start_date = datetime.date(2024, 5, 1)
+    ranking_config.range = 2
+    ranking_config.mode = "weekly"
+    ranking_config.content_mode = "illust"
+    ranking_config.num_artwork = 50
 
-### 1. 安装 Python 及其依赖库
+    displayAllConfig()
+    checkDir(download_config.store_path)
 
-- `Python >= 3.9`
+    app = RankingCrawler(capacity=200)
+    app.run()
+```
 
-- `pip install -r requirements/requirements.txt`
+### Learn about the configurations
 
-### 2. 修改配置文件
+The configurations locate at [config.py](./pixiv_utils/pixiv_crawler/config.py), which contains several items that should potentially be modified, denoted by :warning:. You can simply import these configurations, modify them like the example above, and use `displayAllConfig()` to check if they are correct.
 
-配置文件为`./pixiv_crawler/config.py`，含:warning:项必须修改
+- `RankingConfig`
 
-- `MODE_CONFIG`部分
+  ```python
+  import ranking_config from pixiv_utils.pixiv_crawler
+  ```
 
-  <u>该设置仅适用于抓取排行榜图片</u>
+  **NOTE:** This config is only activated when downloading the ranking list.
 
-  - `START_DATE`: 排行榜开始日期 :warning:
+  - `ranking_config.start_date: datetime.date`: The start date of the ranking list :warning:
 
-  - `RANGE`: 日期范围 :warning:
+  - `ranking_config.range: int`: The date range of the ranking list :warning: `[start, start + range - 1]`
 
-  - `MODE`: 哪个类型的排行榜（参考文件中`RANKING_MODES`） :warning:
+  - `ranking_config.mode: str`: The type of ranking list :warning:, which can be chosen from
 
-  - `CONTENT_MODE`: 下载插画、漫画或是全部类型的作品（参考文件中`CONTENT_MODES`） :warning:
+    ```python
+    ranking_modes: Tuple = (
+        "daily",
+        "weekly",
+        "monthly",
+        "male",
+        "female",
+        "daily_ai",
+        "daily_r18",
+        "weekly_r18",
+        "male_r18",
+        "female_r18",
+        "daily_r18_ai",
+    )
+    ```
 
-  - `N_ARTWORK`: 排行榜前`k`幅作品 :warning:
+  - `ranking_config.content_mode: str`: The type of content in the ranking list :warning:, which can be chosen from
 
-- `OUTPUT_CONFIG`部分
+    ```python
+    content_modes: Tuple = ("all", "illust", "manga", "ugoira")
+    ```
 
-  该设置用于控制输出信息程度，可用于调试
+  - `ranking_config.num_artwork: int`: The number of artworks to be downloaded in each ranking list :warning:
 
-  - `VERBOSE`: 输出最多的信息（不建议开启）
+- `NetworkConfig`
 
-  - `PRINT_ERROR`: 输出遇到异常的类型（可用于调试，偶尔`TimeOut`属于正常情况）
+  ```python
+   import network_config from pixiv_utils.pixiv_crawler
+  ```
 
-- `NETWORK_CONFIG`部分
+  - `network_config.proxy: Dict`: The proxy configuration :warning:
 
-  - `PROXY`: 代理设置（`Clash`无需修改，`SSR`需要修改端口号） :warning:
+    ```python
+    # For example, to turn off the proxy
+    network_config.proxy["https"] = ""
+    ```
 
-  - `HEADER`: 基础请求头，目前仅含浏览器头
+  - `network_config.headers: Dict`: The headers used in the request.
 
-- `USER_CONFIG`部分
+- `UserConfig`
 
-  - `USER_ID`: 修改成自己的`uid`，参考个人资料页面的网址`https://www.pixiv.net/users/{UID}` :warning:
+  ```python
+  import user_config from pixiv_utils.pixiv_crawler
+  ```
 
-  - `COOKIE`: 配置种最关键的一项 :warning::warning::warning:
+  **NOTE:** User-specific configurations are required when downloading personal bookmarks or R18 content.
 
-    1. 打开浏览器的`DevTools`（一般为 F12），切换到`Network`栏
+  - `user_config.user_id: str`: The user ID of the Pixiv account :warning:. You can find it in the URL of your profile page, `https://www.pixiv.net/users/{UID}`.
 
-    2. 访问排行榜并刷新页面，在`DevTools`中找到`ranking.php`
+  - `user_config.cookie: str`: The cookie of your Pixiv account :warning:
+
+    1. Open the browser's `DevTools` (usually F12) and switch to the `Network` tab.
+
+    2. Visit the ranking list and refresh the page. Find `ranking.php` in `DevTools`.
 
        ![](./assets/cookie.png)
 
-       将`cookie:`后面所有的字符（最大的红框所示）复制到配置的`COOKIE`中 :warning:
+       Copy all characters after `cookie:` (as shown in the red box) to the `COOKIE` configuration :warning:
 
-- `DOWNLOAD_CONFIG`部分
-
-  - `STORE_PATH`: 图片保存位置
-
-  - `N_TIMES`: 下载失败后的重复请求次数
-
-  - `WITH_TAG`: 是否需要抓取标签
-
-  - `FAIL_DELAY`: 下载失败后延时（秒）
-
-  - `N_THREAD`: 并行下载的线程数量（根据 CPU 核数调整） :warning:
-
-  - `THREAD_DELAY`: 每个线程启动的延时（秒）
-
-### 3. 修改主程序
-
-参考`./pixiv_crawler/main.py`中注释代码
-
-`capacity`参数用于限制下载流量
-
-- 下载排行榜作品
-
-  正确配置`MODE_CONFIG`，修改主程序
+- `DownloadConfig`
 
   ```python
+  import download_config from pixiv_utils.pixiv_crawler
+  ```
+
+  - `download_config.timeout: float`: The timeout of the request.
+
+  - `download_config.retry_times: int`: The number of retries after a request fails.
+
+  - `download_config.fail_delay: float`: The delay after a request fails.
+
+  - `download_config.store_path: str`: The path to store the downloaded images :warning:
+
+  - `download_config.with_tag: bool`: Whether to download image tags to `tags.json`. :warning:
+
+  - `download_config.num_threads: int`: The number of threads for parallel download :warning:
+
+  - `download_config.thread_delay: float`: The delay for each thread to start.
+
+- `DebugConfig`
+
+  ```python
+  import debug_config from pixiv_utils.pixiv_crawler
+  ```
+
+  - `debug_config.verbose: bool`: Whether to print debug information.
+
+  - `debug_config.show_error: bool`: Whether to print detailed error information.
+
+### Create a crawler instance
+
+- `RankingCrawler`
+
+  ```python
+  """
+  Download artworks from rankings
+
+  NOTE: Require cookie for R18 images!
+
+  Args:
+      capacity (int): flow capacity, default is 1024MB
+  """
   app = RankingCrawler(capacity=200)
   app.run()
   ```
 
-- 下载个人公开收藏作品
-
-  正确配置`USER_CONFIG`，修改主程序
-
-  `n_images`参数用于限制最大下载数量
+- `BookmarkCrawler`
 
   ```python
+  """
+  Download artworks from public bookmarks
+
+  NOTE: Require cookie!
+
+  Args:
+      n_images (int): max download number, default is 200
+      capacity (int): flow capacity, default is 1024MB
+  """
   app = BookmarkCrawler(n_images=20, capacity=200)
   app.run()
   ```
 
-- 下载某位画师的作品
-
-  `artist_id`参数为画师的`uid`
+- `UserCrawler`
 
   ```python
+  """
+  Download artworks from a single artist
+
+  NOTE: Require cookie for R18 images!
+
+  Args:
+      artist_id (str): artist id
+      capacity (int): flow capacity, default is 1024MB
+  """
   app = UserCrawler(artist_id="32548944", capacity=200)
   app.run()
   ```
 
-- 下载某个关键词的作品
-
-  **注**：按照热门度排序需要`premium`账户
-
-  正确配置`USER_CONFIG`，修改主程序
-
-  `keyword`参数为关键词
-
-  `n_images`参数用于限制最大下载数量
+- `KeywordCrawler`
 
   ```python
+  """
+  Download search results of a keyword (sorted by popularity if order=True)
+  Support advanced search, e.g. "(Lucy OR 边缘行者) AND (5000users OR 10000users)", refer to https://www.pixiv.help/hc/en-us/articles/235646387-I-would-like-to-know-how-to-search-for-content-on-pixiv
+
+  NOTE: Require cookie for R18 images!
+  NOTE: Require premium account for popularity sorting!
+
+  Args:
+      keyword (str): search keyword
+      order (bool): order by popularity or not, default is False
+      mode (str): content mode, default is "safe", support ["safe", "r18", "all"]
+      n_images (int): max download number, default is 200
+      capacity (int): flow capacity, default is 1024MB
+  """
   app = KeywordCrawler(
       keyword="(Lucy OR 边缘行者) AND (5000users OR 10000users)",
       order=False,
@@ -195,10 +267,26 @@ graph LR;
   app.run()
   ```
 
-### 4. 运行
+### Run
 
-`python main.py`
+Just run your script. :laughing:
 
-### 5. 注意事项 :warning:
+### Tips
 
-- `COOKIE`过期时间较长，一般几天内可重复使用
+- `COOKIE` expiration time is relatively long, and can be reused within a few days.
+
+- Use `displayAllConfig()` to display all configurations and check if they are correct.
+
+## Documentation
+
+- [Tutorial](./tutorial.py): Quick start tutorial of Pixiv Crawler
+
+- [Configuration](./pixiv_utils/pixiv_crawler/config.py): Configuration of Pixiv Crawler
+
+- [Pixiv Crawler](./docs/PIXIV_CRAWLER.md): Detailed instructions for Pixiv Crawler
+
+- [Mosaic Puzzles](./docs/IMAGE_MIX.md): Detailed instructions for Mosaic Puzzles
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CWHer/PixivCrawler&type=Date)](https://star-history.com/#CWHer/PixivCrawler&Date)
