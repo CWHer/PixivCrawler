@@ -1,10 +1,12 @@
+# Mosaic Puzzles
+
 ## 如何使用
 
 ### 参数说明
 
 ```bash
-usage: mix_image.py [-h] -l LIB_DIR -t TARGET_IMAGE [-i INPUT_DIR] [-o OUTPUT_FILE] [-b BLOCK_SIZE] [-width OUTPUT_WIDTH]
-                    [-height OUTPUT_HEIGHT] [-m MAX_TIMES] [--soften]
+$ python -m pixiv_utils.image_mix.mix_image --help
+usage: mix_image.py [-h] -l LIB_DIR -t TARGET_IMAGE [-i INPUT_DIR] [-o OUTPUT_FILE] [-b BLOCK_SIZE] [-width OUTPUT_WIDTH] [-height OUTPUT_HEIGHT] [-m MAX_TIMES] [--soften]
 
 options:
   -h, --help            show this help message and exit
@@ -27,11 +29,13 @@ options:
   --soften              blend the result with the target image to soften the result (default: False)
 ```
 
-- `-l LIB_DIR, --lib-dir LIB_DIR`：<u>色块库</u>目录
+- `-l LIB_DIR, --lib-dir LIB_DIR`：色块库目录
 
-- `-t TARGET_IMAGE, --target-image TARGET_IMAGE`：<u>目标图片</u>路径
+- `-t TARGET_IMAGE, --target-image TARGET_IMAGE`：目标图片路径
 
-- `-i INPUT_DIR, --input-dir INPUT_DIR`：<u>原始图片</u>目录
+- `-i INPUT_DIR, --input-dir INPUT_DIR`：原始图片目录
+
+- `-o OUTPUT_FILE, --output-file OUTPUT_FILE`：输出文件路径
 
 - `-b BLOCK_SIZE, --block-size BLOCK_SIZE`：目标图片分块大小 / 色块库中每个色块大小
 
@@ -41,23 +45,42 @@ options:
 
 - `-m MAX_TIMES, --max-times MAX_TIMES`：色块库中每个色块的最大使用次数
 
+- `--soften`：混合结果与目标图片以软化结果
+
 ### 使用流程
 
-:warning: 首次使用需要根据<u>原始图片</u>建立<u>色块库</u>，后续使用不需要重建
+:warning: 首次使用需要根据原始图片建立色块库，后续使用不需要重建
 
 - 首次使用样例
 
-  `python -m pixiv_utils.image_mix.mix_image -l ../image_lib/ -t ../images/44873217_p0.jpg -i ../images/ -b 100 -width 2000 -height 1000 -m 2`
+  ```bash
+  python -m pixiv_utils.image_mix.mix_image \
+      -l ../image_lib/ \
+      -t ../images/44873217_p0.jpg \
+      -i ../images/ \
+      -b 100 \
+      -width 2000 \
+      -height 1000 \
+      -m 2
+  ```
 
 - 后续使用样例
 
   不需要添加`-i INPUT_DIR, --input-dir INPUT_DIR`参数
 
-  `python -m pixiv_utils.image_mix.mix_image -l ../image_lib/ -t ../images/44873217_p0.jpg -b 100 -width 2000 -height 1000 -m 2`
+  ```bash
+  python -m pixiv_utils.image_mix.mix_image \
+      -l ../image_lib/ \
+      -t ../images/44873217_p0.jpg \
+      -b 100 \
+      -width 2000 \
+      -height 1000 \
+      -m 2
+  ```
 
 ## 算法原理
 
-详见`mix_image.py`注释
+详见[`mix_image.py`](../pixiv_utils/image_mix/mix_image.py)注释
 
 1. 将原始图片转化为色块，建立色块库
 
