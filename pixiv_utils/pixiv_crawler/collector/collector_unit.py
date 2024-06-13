@@ -19,7 +19,7 @@ def collect(
         args (Tuple[str, Callable, Optional[Dict]]): A tuple containing the URL, a selector function, and additional headers.
 
     """
-    headers = network_config.header
+    headers = network_config.headers
     if additional_headers is not None:
         headers.update(additional_headers)
 
@@ -30,7 +30,7 @@ def collect(
     for i in range(download_config.retry_times):
         try:
             response = requests.get(
-                url, headers=headers, proxies=network_config.proxy, timeout=network_config.timeout
+                url, headers=headers, proxies=network_config.proxy, timeout=download_config.timeout
             )
 
             if response.status_code == requests.status_codes.codes.ok:

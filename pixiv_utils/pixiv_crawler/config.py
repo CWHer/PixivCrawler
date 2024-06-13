@@ -52,10 +52,8 @@ class DebugConfig:
 class NetworkConfig:
     # Proxy setting, you should customize your proxy setting accordingly. Default is for clash
     proxy: Dict = dataclasses.field(default_factory=lambda: {"https": "127.0.0.1:7890"})
-    # Timeout for requests
-    timeout: float = 4
     # Common request header
-    header: Dict = dataclasses.field(
+    headers: Dict = dataclasses.field(
         default_factory=lambda: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         }
@@ -72,10 +70,11 @@ class UserConfig:
 
 @dataclasses.dataclass
 class DownloadConfig:
-    store_path: str = "images"  # Image save path
-    retry_times: int = 10  # Abort request / download after 10 unsuccessful attempts
-    with_tag: bool = True  # Whether to download tags to a separate json file
+    timeout: float = 4  # Timeout for requests
+    retry_times: int = 10  # Retry times for requests
     fail_delay: float = 1  # Waiting time (s) after failure
+    store_path: str = "images"  # Image save path
+    with_tag: bool = True  # Whether to download tags to a separate json file
     num_threads: int = 12  # Number of parallel threads
     thread_delay: float = 1  # Waiting time (s) after thread start
 

@@ -45,14 +45,14 @@ class BookmarkCrawler:
         printInfo("===== Requesting bookmark count =====")
 
         headers = {"COOKIE": user_config.cookie}
-        headers.update(network_config.header)
+        headers.update(network_config.headers)
         for i in range(download_config.retry_times):
             try:
                 response = requests.get(
                     url,
                     headers=headers,
                     proxies=network_config.proxy,
-                    timeout=network_config.timeout,
+                    timeout=download_config.timeout,
                 )
 
                 if response.status_code == requests.codes.ok:
