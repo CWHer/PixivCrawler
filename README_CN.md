@@ -141,7 +141,7 @@ if __name__ == "__main__":
   import user_config from pixiv_utils.pixiv_crawler
   ```
 
-  **注意：**下载个人书签或 R18 内容时，需要填写用户配置。
+  **注意：** 下载个人书签或 R18 内容时，需要填写用户配置。
 
   - `user_config.user_id: str`： Pixiv 账户的用户 ID :warning:。您可以在个人资料页面的 URL 中找到它，即 `https://www.pixiv.net/users/{UID}`。
 
