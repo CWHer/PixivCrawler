@@ -1,5 +1,6 @@
 import datetime
 import os
+import random
 import shutil
 import unittest
 
@@ -40,10 +41,20 @@ class TestRankingCrawler(unittest.TestCase):
 
         checkDir(download_config.store_path)
         app = RankingCrawler(capacity=10)
-        app.run()
 
-        self.assertGreater(len(app.downloader.url_group), 50)
-        self.assertGreater(len(os.listdir(download_config.store_path)), 5)
+        if random.choice([True, False]):
+            # Download images
+            app.run()
+
+            self.assertGreater(len(app.downloader.url_group), 50)
+            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
+        else:
+            # Only download urls
+            url_group = app.run(url_only=True)
+
+            self.assertGreater(len(url_group), 50)
+            self.assertEqual(url_group, app.downloader.url_group)
+            self.assertEqual(len(os.listdir(download_config.store_path)), 0)
 
 
 if __name__ == "__main__":
