@@ -133,6 +133,8 @@ if __name__ == "__main__":
     network_config.proxy["https"] = ""
     ```
 
+    默认 `proxy["https"]` 值为 `127.0.0.1:7890`，即 clash 的默认代理端口，需要根据实际的代理设置进行变更。**如果无需代理，请将 https 属性置为""。**
+
   - `network_config.headers： Dict`： 请求中使用的标头。
 
 - `UserConfig`

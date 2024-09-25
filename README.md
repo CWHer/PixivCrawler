@@ -140,6 +140,8 @@ The configurations locate at [`config.py`](./pixiv_utils/pixiv_crawler/config.py
     network_config.proxy["https"] = ""
     ```
 
+    The default `proxy["https"]` value is `127.0.0.1:7890`, which is the default proxy port of clash. It needs to be changed according to the actual proxy settings. **If you do not need a proxy, please set the https attribute to "".**
+
   - `network_config.headers: Dict`: The headers used in the request.
 
 - `UserConfig`
