@@ -180,6 +180,16 @@ The configurations locate at [`config.py`](./pixiv_utils/pixiv_crawler/config.py
 
   - `download_config.with_tag: bool`: Whether to download image tags to `tags.json`. :warning:
 
+  - `download_config.url_only: bool`: Whether to download image URLs only, without downloading images. URL will be returned through `app.run()`. :warning:
+
+    ```python
+    ...
+    download_config.url_only = True
+
+    ...
+    urls = app.run()  # a set of image URLs
+    ```
+
   - `download_config.num_threads: int`: The number of threads for parallel download :warning:
 
   - `download_config.thread_delay: float`: The delay for each thread to start.
