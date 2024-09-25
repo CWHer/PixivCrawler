@@ -171,7 +171,17 @@ if __name__ == "__main__":
 
   - `download_config.store_path: str`： 存储下载图像的路径 :warning：
 
-  - `download_config.with_tag: bool`： 是否将图片标签下载到 `tags.json` 中：
+  - `download_config.with_tag: bool`： 是否将图片标签下载到 `tags.json` 中 :warning:
+
+  - `download_config.url_only: bool`： 是否仅下载图片链接，不下载图片文件，结果由`app.run()`返回。:warning:
+
+    ```python
+    ...
+    download_config.url_only = True
+
+    ...
+    urls = app.run()  # a set of image URLs
+    ```
 
   - `download_config.num_threads: int`： 并行下载的线程数 :warning：
 

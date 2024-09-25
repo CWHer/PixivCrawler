@@ -1,7 +1,7 @@
 import concurrent.futures as futures
 import functools
 import time
-from typing import Set
+from typing import Set, Union
 
 import requests
 import tqdm
@@ -120,7 +120,13 @@ class BookmarkCrawler:
         printInfo("===== Collect bookmark complete =====")
         printInfo(f"Number of downloadable artworks: {len(self.collector.id_group)}")
 
-    def run(self):
+    def run(self) -> Union[Set[str], float]:
+        """
+        Run the bookmark crawler
+
+        Returns:
+            Union[Set[str], float]: artwork urls or download traffic usage
+        """
         self._requestCount()
         self.collect()
         self.collector.collect()

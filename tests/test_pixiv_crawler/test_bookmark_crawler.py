@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 import unittest
 
@@ -34,13 +35,18 @@ class TestBookmarkCrawler(unittest.TestCase):
         user_config.cookie = cookie
         user_config.user_id = uid
         download_config.with_tag = False
+        download_config.url_only = random.choice([True, False])
 
         checkDir(download_config.store_path)
         app = BookmarkCrawler(n_images=5, capacity=10)
-        app.run()
+        result = app.run()
 
         self.assertGreater(len(app.downloader.url_group), 20)
-        self.assertGreater(len(os.listdir(download_config.store_path)), 5)
+        if download_config.url_only:
+            self.assertEqual(result, app.downloader.url_group)
+            self.assertEqual(len(os.listdir(download_config.store_path)), 0)
+        else:
+            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
 
 
 if __name__ == "__main__":

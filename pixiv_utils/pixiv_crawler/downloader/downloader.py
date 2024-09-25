@@ -1,5 +1,5 @@
 import concurrent.futures as futures
-from typing import Iterable, Set
+from typing import Iterable, Set, Union
 
 import tqdm
 
@@ -29,7 +29,14 @@ class Downloader:
         for url in urls:
             self.url_group.add(url)
 
-    def download(self):
+    def download(self) -> Union[Set[str], float]:
+        """
+        Returns:
+            Union[Set[str], float]: artwork urls or download traffic usage
+        """
+        if download_config.url_only:
+            return self.url_group
+
         download_traffic = 0.0
         printInfo("===== Downloader start =====")
 

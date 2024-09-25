@@ -1,5 +1,6 @@
 import datetime
 import os
+import random
 import shutil
 import unittest
 
@@ -32,6 +33,7 @@ class TestRankingCrawler(unittest.TestCase):
         user_config.user_id = ""
         user_config.cookie = ""
         download_config.with_tag = False
+        download_config.url_only = random.choice([True, False])
         ranking_config.start_date = datetime.date(2024, 5, 1)
         ranking_config.range = 2
         ranking_config.mode = "weekly"
@@ -40,10 +42,14 @@ class TestRankingCrawler(unittest.TestCase):
 
         checkDir(download_config.store_path)
         app = RankingCrawler(capacity=10)
-        app.run()
+        result = app.run()
 
         self.assertGreater(len(app.downloader.url_group), 50)
-        self.assertGreater(len(os.listdir(download_config.store_path)), 5)
+        if download_config.url_only:
+            self.assertEqual(result, app.downloader.url_group)
+            self.assertEqual(len(os.listdir(download_config.store_path)), 0)
+        else:
+            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import concurrent.futures as futures
 import functools
 import urllib.parse as urlparse
-from typing import Set
+from typing import Set, Union
 
 import tqdm
 
@@ -91,7 +91,13 @@ class KeywordCrawler:
         printInfo(f"===== Collect {self.keyword} complete =====")
         printInfo(f"Number of downloadable artworks: {len(self.collector.id_group)}")
 
-    def run(self):
+    def run(self) -> Union[Set[str], float]:
+        """
+        Run the keyword crawler
+
+        Returns:
+            Union[Set[str], float]: artwork urls or download traffic usage
+        """
         self.collect()
         self.collector.collect()
         return self.downloader.download()

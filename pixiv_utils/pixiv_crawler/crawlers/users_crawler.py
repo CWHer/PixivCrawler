@@ -1,3 +1,5 @@
+from typing import Set, Union
+
 from pixiv_utils.pixiv_crawler.collector import Collector, collect, selectUser
 from pixiv_utils.pixiv_crawler.config import user_config
 from pixiv_utils.pixiv_crawler.downloader import Downloader
@@ -34,7 +36,13 @@ class UserCrawler:
             self.collector.add(image_ids)
         printInfo(f"===== Collect user {self.artist_id} complete =====")
 
-    def run(self):
+    def run(self) -> Union[Set[str], float]:
+        """
+        Run the user crawler
+
+        Returns:
+            Union[Set[str], float]: artwork urls or download traffic usage
+        """
         self.collect()
         self.collector.collect()
         return self.downloader.download()

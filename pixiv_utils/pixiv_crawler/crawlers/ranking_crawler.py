@@ -1,7 +1,7 @@
 import concurrent.futures as futures
 import datetime
 import re
-from typing import Set
+from typing import Set, Union
 
 import tqdm
 
@@ -92,7 +92,13 @@ class RankingCrawler:
 
         printInfo(f"===== Collect {content} ranking complete =====")
 
-    def run(self) -> float:
+    def run(self) -> Union[Set[str], float]:
+        """
+        Run the ranking crawler
+
+        Returns:
+            Union[Set[str], float]: artwork urls or download traffic usage
+        """
         self._collect()
         self.collector.collect()
         return self.downloader.download()
