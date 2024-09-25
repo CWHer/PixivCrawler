@@ -31,6 +31,7 @@ class TestKeywordCrawler(unittest.TestCase):
         user_config.user_id = ""
         user_config.cookie = ""
         download_config.with_tag = True
+        download_config.url_only = random.choice([True, False])
 
         checkDir(download_config.store_path)
         app = KeywordCrawler(
@@ -40,22 +41,15 @@ class TestKeywordCrawler(unittest.TestCase):
             n_images=5,
             capacity=10,
         )
+        result = app.run()
 
-        if random.choice([True, False]):
-            # Download images
-            app.run()
-
-            self.assertGreater(len(app.downloader.url_group), 20)
-            self.assertTrue("tags.json" in os.listdir(download_config.store_path))
-            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
-        else:
-            # Only download urls
-            url_group = app.run(url_only=True)
-
-            self.assertGreater(len(url_group), 20)
-            self.assertEqual(url_group, app.downloader.url_group)
-            self.assertTrue("tags.json" in os.listdir(download_config.store_path))
+        self.assertGreater(len(app.downloader.url_group), 20)
+        self.assertTrue("tags.json" in os.listdir(download_config.store_path))
+        if download_config.url_only:
+            self.assertEqual(result, app.downloader.url_group)
             self.assertEqual(len(os.listdir(download_config.store_path)), 1)
+        else:
+            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
 
 
 if __name__ == "__main__":

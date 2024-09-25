@@ -31,24 +31,19 @@ class TestUserCrawler(unittest.TestCase):
         user_config.user_id = ""
         user_config.cookie = ""
         download_config.with_tag = False
+        download_config.url_only = random.choice([True, False])
         download_config.num_threads = 10
 
         checkDir(download_config.store_path)
         app = UserCrawler(artist_id="32548944", capacity=10)
+        result = app.run()
 
-        if random.choice([True, False]):
-            # Download images
-            app.run()
-
-            self.assertGreater(len(app.downloader.url_group), 200)
-            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
-        else:
-            # Only download urls
-            url_group = app.run(url_only=True)
-
-            self.assertGreater(len(url_group), 200)
-            self.assertEqual(url_group, app.downloader.url_group)
+        self.assertGreater(len(app.downloader.url_group), 200)
+        if download_config.url_only:
+            self.assertEqual(result, app.downloader.url_group)
             self.assertEqual(len(os.listdir(download_config.store_path)), 0)
+        else:
+            self.assertGreater(len(os.listdir(download_config.store_path)), 5)
 
 
 if __name__ == "__main__":
