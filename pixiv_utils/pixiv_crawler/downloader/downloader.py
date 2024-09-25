@@ -29,6 +29,9 @@ class Downloader:
         for url in urls:
             self.url_group.add(url)
 
+    def getUrls(self) -> Set[str]:
+        return self.url_group
+
     def download(self):
         download_traffic = 0.0
         printInfo("===== Downloader start =====")
