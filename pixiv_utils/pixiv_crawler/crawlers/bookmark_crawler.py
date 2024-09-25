@@ -120,12 +120,9 @@ class BookmarkCrawler:
         printInfo("===== Collect bookmark complete =====")
         printInfo(f"Number of downloadable artworks: {len(self.collector.id_group)}")
 
-    def run(self, url_only: bool = False) -> Union[Set[str], float]:
+    def run(self) -> Union[Set[str], float]:
         """
         Run the bookmark crawler
-
-        Args:
-            url_only: Only download urls. Defaults to False.
 
         Returns:
             Union[Set[str], float]: artwork urls or download traffic usage
@@ -133,10 +130,4 @@ class BookmarkCrawler:
         self._requestCount()
         self.collect()
         self.collector.collect()
-
-        # Return urls only
-        if url_only:
-            return self.downloader.getUrls()
-
-        # Download images
         return self.downloader.download()

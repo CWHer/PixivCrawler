@@ -36,22 +36,13 @@ class UserCrawler:
             self.collector.add(image_ids)
         printInfo(f"===== Collect user {self.artist_id} complete =====")
 
-    def run(self, url_only: bool = False) -> Union[Set[str], float]:
+    def run(self) -> Union[Set[str], float]:
         """
         Run the user crawler
-
-        Args:
-            url_only: Only download urls. Defaults to False.
 
         Returns:
             Union[Set[str], float]: artwork urls or download traffic usage
         """
         self.collect()
         self.collector.collect()
-
-        # Return urls only
-        if url_only:
-            return self.downloader.getUrls()
-
-        # Download images
         return self.downloader.download()
