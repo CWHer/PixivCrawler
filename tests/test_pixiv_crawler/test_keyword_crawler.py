@@ -55,7 +55,7 @@ class TestKeywordCrawler(unittest.TestCase):
             self.assertGreater(len(url_group), 20)
             self.assertEqual(url_group, app.downloader.url_group)
             self.assertTrue("tags.json" in os.listdir(download_config.store_path))
-            self.assertEqual(len(os.listdir(download_config.store_path)), 0)
+            self.assertEqual(len(os.listdir(download_config.store_path)), 1)
 
 
 if __name__ == "__main__":

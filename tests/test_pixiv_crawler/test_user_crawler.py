@@ -35,7 +35,6 @@ class TestUserCrawler(unittest.TestCase):
 
         checkDir(download_config.store_path)
         app = UserCrawler(artist_id="32548944", capacity=10)
-        app.run()
 
         if random.choice([True, False]):
             # Download images
