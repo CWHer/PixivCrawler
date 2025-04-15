@@ -76,7 +76,7 @@ class RankingCrawler:
                     {
                         "Referer": re.search("(.*)&p", url).group(1),
                         "x-requested-with": "XMLHttpRequest",
-                        "COOKIE": user_config.cookie,
+                        "Cookie": user_config.cookie,
                     }
                     for url in urls
                 ]

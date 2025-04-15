@@ -44,7 +44,7 @@ class BookmarkCrawler:
         url = self.user_url + "/bookmark/tags?lang=zh"
         printInfo("===== Requesting bookmark count =====")
 
-        headers = {"COOKIE": user_config.cookie}
+        headers = {"Cookie": user_config.cookie}
         headers.update(network_config.headers)
         for i in range(download_config.retry_times):
             try:
@@ -104,7 +104,7 @@ class BookmarkCrawler:
                 )
             )
 
-        additional_headers = {"COOKIE": user_config.cookie}
+        additional_headers = {"Cookie": user_config.cookie}
         collect_bookmark_fn = functools.partial(
             collect, selector=selectBookmark, additional_headers=additional_headers
         )

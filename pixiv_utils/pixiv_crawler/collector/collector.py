@@ -81,7 +81,7 @@ class Collector:
                 # NOTE: Add COOKIE to collect R18 content
                 additional_headers = [
                     {
-                        "COOKIE": user_config.cookie,
+                        "Cookie": user_config.cookie,
                         "Referer": f"https://www.pixiv.net/artworks/{illust_id}",
                         "x-user-id": user_config.user_id,
                     }
