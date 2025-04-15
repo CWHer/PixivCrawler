@@ -53,13 +53,19 @@ def downloadImage(url: str, download_time: float = 10) -> float:
                 if len(response.content) != image_size:
                     time.sleep(download_config.fail_delay)
                     download_time += 2
-                    continue
+                    raise RuntimeError(
+                        f"Image size mismatch: expected {image_size}, got {len(response.content)}"
+                    )
 
                 with open(image_path, "wb") as f:
                     f.write(response.content)
                 if debug_config.verbose:
                     printInfo(f"{image_name} complete")
                 return image_size / 2**20
+
+            raise RuntimeError(
+                f"Request failed with status code {response.status_code} for {image_name}"
+            )
 
         except Exception as e:
             assertWarn(not debug_config.show_error, e)
