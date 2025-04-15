@@ -33,7 +33,7 @@ def fetchReadme(path: str) -> str:
 
 setuptools.setup(
     name="pixiv_utils",
-    version="1.0.1",
+    version="1.0.2",
     author="Wenhao Chen",
     author_email="cwher@outlook.com",
     description="Pixiv Utils implemented in Python, including Pixiv crawler and mosaic puzzles, support for rankings, personal favorites, artist works, keyword search and other filtering functions, and provide high-performance multi-threaded parallel download.",
