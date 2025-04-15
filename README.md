@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/pypi/v/pixiv-utils)
 [![Daily test](https://github.com/CWHer/PixivCrawler/actions/workflows/test_on_schedule.yml/badge.svg)](https://github.com/CWHer/PixivCrawler/actions/workflows/test_on_schedule.yml)
-![](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-green)
+![](https://img.shields.io/badge/Python-3.9%20%7C%203.11%20%7C%203.13-green)
 ![](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-blue)
 
 The Chinese version of README can be found [here](./README_CN.md).
