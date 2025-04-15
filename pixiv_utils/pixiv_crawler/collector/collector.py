@@ -78,8 +78,10 @@ class Collector:
                     f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=zh"
                     for illust_id in self.id_group
                 ]
+                # NOTE: Add COOKIE to collect R18 content
                 additional_headers = [
                     {
+                        "Cookie": user_config.cookie,
                         "Referer": f"https://www.pixiv.net/artworks/{illust_id}",
                         "x-user-id": user_config.user_id,
                     }

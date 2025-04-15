@@ -39,6 +39,8 @@ def collect(
                     printInfo(f"{url} complete")
                 return id_group
 
+            raise RuntimeError(f"Request failed with status code {response.status_code} for {url}")
+
         except Exception as e:
             assertWarn(not debug_config.show_error, e)
             assertWarn(not debug_config.show_error, f"This is {i} attempt to collect {url}")

@@ -75,7 +75,7 @@ class KeywordCrawler:
         for i in range(n_page):
             urls.add(url.format(i + 1))
 
-        additional_headers = {"COOKIE": user_config.cookie}
+        additional_headers = {"Cookie": user_config.cookie}
         collect_keyword_fn = functools.partial(
             collect, selector=selectKeyword, additional_headers=additional_headers
         )
